@@ -1,4 +1,0 @@
-pydantic>=2.12.5
-fastapi>=0.128.0
-langchain>=1.2.4
-langchain-openai>=1.1.7
