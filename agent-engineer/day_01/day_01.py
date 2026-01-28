@@ -6,7 +6,7 @@ from functools import wraps
 from typing import Any, Callable, Dict, AsyncGenerator, List
 
 """
-
+    装饰器、生成器、异步编程
 """
 ## 企业级缓存装饰器
 class DistributedCacheDecorator:
@@ -84,6 +84,7 @@ class DistributedCacheDecorator:
             value: 缓存值
         """
         print(f"同步到分布式缓存: {key}")
+
 
 # 使用示例：AI Agent的智能重试机制
 @DistributedCacheDecorator(ttl=60, cache_backend='redis')
@@ -274,6 +275,7 @@ class ConcurrentRouter:
         # 无首选模型时返回所有模型
         return list(self.semaphores.keys())
 
+
 @dataclass
 class ModelEndpoint:
     """
@@ -287,6 +289,7 @@ class ModelEndpoint:
     name: str
     url: str
     max_concurrent: int
+
 
 if __name__ == '__main__':
     pass
