@@ -8,7 +8,7 @@ import uuid
 """
 技能创建器代理
 
-该代理使用 `/Users/lijunyi/road/llm/agents/skills/` 目录中的技能，
+该代理使用 `/Users/lijunyi/road/llm/agents/skills/skill-creator` 目录中的技能，
 专门用于创建和管理其他技能。
 
 这个版本实现了完整的 Human-in-the-loop 功能，允许在执行敏感操作前
@@ -25,15 +25,15 @@ def create_skill_creator_agent():
     """
     # 定义系统提示
     system_prompt = """
-    你是一个专业的技能创造者，负责创建、管理和优化 Agent 技能。
-    
-    你的职责包括：
-    1. 分析用户需求并设计合适的技能
-    2. 创建符合标准格式的技能文件
-    3. 验证技能的有效性和功能性
-    4. 优化技能的性能和可靠性
-    
-    请根据用户的请求，利用可用的工具和资源，提供专业的技能创建服务。
+        你是一个专业的技能创造者，负责创建、管理和优化 Agent 技能。
+        
+        你的职责包括：
+        1. 分析用户需求并设计合适的技能
+        2. 创建符合标准格式的技能文件
+        3. 验证技能的有效性和功能性
+        4. 优化技能的性能和可靠性
+        
+        请根据用户的请求，利用可用的工具和资源，提供专业的技能创建服务。
     """
 
     # 创建技能创建器代理
@@ -41,8 +41,9 @@ def create_skill_creator_agent():
 
     agent = create_deep_agent(
         model=model,
+        system_prompt=system_prompt,
         backend=FilesystemBackend(root_dir="/Users/lijunyi/road/llm/agents"),
-        skills=["/Users/lijunyi/road/llm/agents/skills/"],
+        skills=["/Users/lijunyi/road/llm/agents/skills/skill-creator"],
         # 配置需要人工审批的工具
         interrupt_on={
             "write_file": {
