@@ -6,8 +6,10 @@ from functools import wraps
 from typing import Any, Callable, Dict, AsyncGenerator, List
 
 """
-    装饰器、生成器、异步编程
+    装饰器、异步编程、生成器
 """
+
+
 ## 企业级缓存装饰器
 class DistributedCacheDecorator:
     """
@@ -190,6 +192,21 @@ class AsyncRAGGenerator:
         return chunk, min(1.0, relevance)  # 确保得分不超过1.0
 
 
+@dataclass
+class ModelEndpoint:
+    """
+    模型端点配置
+
+    Attributes:
+        name: 模型名称
+        url: 模型API地址
+        max_concurrent: 最大并发请求数
+    """
+    name: str
+    url: str
+    max_concurrent: int
+
+
 ## 并发模型路由
 class ConcurrentRouter:
     """
@@ -274,21 +291,6 @@ class ConcurrentRouter:
             return [preferred] + [m for m in self.semaphores if m != preferred]
         # 无首选模型时返回所有模型
         return list(self.semaphores.keys())
-
-
-@dataclass
-class ModelEndpoint:
-    """
-    模型端点配置
-    
-    Attributes:
-        name: 模型名称
-        url: 模型API地址
-        max_concurrent: 最大并发请求数
-    """
-    name: str
-    url: str
-    max_concurrent: int
 
 
 if __name__ == '__main__':
