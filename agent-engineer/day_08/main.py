@@ -23,7 +23,6 @@ from message_queue import MessageQueue, MessageReliability
 from capability_matrix import CapabilityMatrix, LoadBalancer
 from coordinator import Coordinator, StateSynchronizer
 from redis_store import RedisStateStore
-
 # ================ 状态定义 ================
 
 

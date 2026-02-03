@@ -6,20 +6,30 @@ dependencies = [
     "pydantic>=2.0",
     "pydantic-settings>=2.12.0",
     "python-dotenv>=1.2.1",
-    "uvicorn[standard]>=0.40.0",
-    "tavily>=1.1.0",
     "fastapi>=0.128.0",
+    "uvicorn[standard]>=0.40.0",
     "langchain>=1.2.7",
     "langgraph>=1.0.7",
     "deepagents>=0.3.8",
     "langchain-openai>=1.1.7",
-    "langchain-anthropic>=1.3.1",
-    "langchain-deepseek>=1.0.1",
+    "langchain-unstructured>=1.0.1",
+    "langchain_text_splitters>=1.1.0",
+    "langchain-community>=0.4.1",
+    "dashscope>=1.25.11",
+    "qdrant-client>=1.12.0,<1.16.0",
+    "langchain-qdrant>=0.1.1",
     "redis>=7.1.0",
-    "matplotlib>=3.10.8"
+    "bs4>=0.0.2",
+    "tavily>=1.1.0",
+    "matplotlib>=3.10.8",
+    "pytest-asyncio>=1.3.0",
 ]
+
 
 [dependency-groups]
 dev = [
     "pytest"
 ]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
