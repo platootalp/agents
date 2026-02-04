@@ -2,7 +2,7 @@
 """
 流式输出演示
 
-展示 github_agent.py 的流式输出效果，可以实时看到 AI 的思考过程
+展示 github_stars_agent.py 的流式输出效果，可以实时看到 AI 的思考过程
 """
 
 import os
@@ -49,7 +49,7 @@ def main():
     input("按 Enter 键开始...")
     
     # 导入并运行 Agent
-    from src.agent.github_agent import run_agent
+    from src.agent.github_stars_agent import run_agent
     
     try:
         result = run_agent(

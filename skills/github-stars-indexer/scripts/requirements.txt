@@ -1,7 +1,7 @@
 # 基础依赖（用于 fetch_stars.py 和 generate_index.py）
 requests>=2.31.0
 
-# AI Agent 依赖（用于 github_agent.py）
+# AI Agent 依赖（用于 github_stars_agent.py）
 langchain-openai>=0.1.0
 langgraph>=0.2.0
 langchain-core>=0.3.0

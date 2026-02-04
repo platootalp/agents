@@ -41,10 +41,10 @@ def demo_1_no_params():
         print("  DASHSCOPE_API_KEY=sk_xxxxxxxxxxxxx")
         return
     
-    from src.agent.github_agent import run_agent
+    from src.agent.github_stars_agent import run_agent
     
     print("运行命令（等效）:")
-    print("  python github_agent.py")
+    print("  python github_stars_agent.py")
     print()
     
     print("开始执行...\n")
@@ -75,10 +75,10 @@ def demo_2_with_params():
         print("⚠️  跳过（环境变量未设置）")
         return
     
-    from src.agent.github_agent import run_agent
+    from src.agent.github_stars_agent import run_agent
     
     print("运行命令（等效）:")
-    print("  python github_agent.py --min-stars 200 --output high_quality.md")
+    print("  python github_stars_agent.py --min-stars 200 --output high_quality.md")
     print()
     
     print("开始执行...\n")
@@ -123,7 +123,7 @@ def demo_3_code_usage():
     """)
     print()
     
-    from src.agent.github_agent import run_agent
+    from src.agent.github_stars_agent import run_agent
     
     print("开始执行...\n")
     

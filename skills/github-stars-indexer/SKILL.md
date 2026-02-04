@@ -110,10 +110,10 @@ python scripts/fetch_github_stars.py \
 ```bash
 # No parameters - simplest way
 cd ../../src/agent
-python github_agent.py
+python github_stars_agent.py
 
 # With parameters
-python github_agent.py --min-stars 100 --output my_stars.md
+python github_stars_agent.py --min-stars 100 --output my_stars.md
 
 # In code
 from src.agent.github_agent import run_agent

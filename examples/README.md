@@ -48,7 +48,7 @@ python github_agent_demo.py
 ### 最简单的方式
 
 ```python
-from src.agent.github_agent import run_agent
+from src.agent.github_stars_agent import run_agent
 
 # 一行代码，完成所有操作
 result = run_agent()
@@ -66,7 +66,7 @@ result = run_agent(
 ### 完整示例
 
 ```python
-from src.agent.github_agent import run_agent
+from src.agent.github_stars_agent import run_agent
 import os
 
 # 确保环境变量已设置

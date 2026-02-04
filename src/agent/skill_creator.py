@@ -1,7 +1,7 @@
 from deepagents import create_deep_agent
 from langgraph.checkpoint.memory import MemorySaver
 from deepagents.backends.filesystem import FilesystemBackend
-from util import model
+from ..util import get_qwen_model
 from langgraph.types import Command
 import uuid
 
@@ -40,7 +40,7 @@ def create_skill_creator_agent():
     checkpointer = MemorySaver()
 
     agent = create_deep_agent(
-        model=model,
+        model=get_qwen_model(),
         system_prompt=system_prompt,
         backend=FilesystemBackend(root_dir="/Users/lijunyi/road/llm/agents"),
         skills=["/Users/lijunyi/road/llm/agents/skills/skill-creator"],
