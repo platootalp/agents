@@ -87,6 +87,45 @@ python scripts/fetch_github_stars.py \
 
 **If automatic fetching is not needed**, skip to Step 1 to create the index manually.
 
+### NEW: AI Agent Approach (Recommended)
+
+**Location:** `../../src/agent/github_agent.py`
+
+**When to use:** For AI-powered intelligent categorization with learning recommendations.
+
+**Key advantages:**
+- ✅ One command does everything (fetch + analyze + generate)
+- ✅ Uses Qwen model for smart categorization
+- ✅ Generates learning paths and recommendations
+- ✅ Cross-language intelligent classification
+- ✅ No parameters needed (reads from environment)
+
+**Requirements:**
+- `GITHUB_TOKEN` in environment or `.env` file
+- `DASHSCOPE_API_KEY` in environment or `.env` file
+- Python packages: `requests`, `langchain-openai`, `langgraph`
+
+**Usage:**
+
+```bash
+# No parameters - simplest way
+cd ../../src/agent
+python github_agent.py
+
+# With parameters
+python github_agent.py --min-stars 100 --output my_stars.md
+
+# In code
+from src.agent.github_agent import run_agent
+result = run_agent(min_stars=100)
+```
+
+**For detailed usage**, see `../../src/agent/github_agent_usage.md`.
+
+**Comparison:**
+- **AI Agent**: Best for intelligent analysis, learning recommendations, professional output
+- **Separate scripts**: Best for speed, offline use, simple language grouping
+
 ---
 
 ## Step 1: Understand Requirements
