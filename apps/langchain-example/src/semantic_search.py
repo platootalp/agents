@@ -18,8 +18,14 @@ from langchain_core.runnables import chain
 from langchain_core.vectorstores import InMemoryVectorStore
 
 from langchain_community.document_loaders import PyPDFLoader
-from langchain_openai import OpenAIEmbeddings
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+from rag_utils import (
+    EMBEDDING_CONFIG,
+    SPLITTER_CONFIG,
+    create_embeddings,
+    split_documents,
+    create_vector_store,
+)
 
 
 # =============================================================================
@@ -28,23 +34,9 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 load_dotenv()
 
-# OpenAI-compatible embedding service configuration
-# Supports: vLLM, Ollama, LM Studio, Xinference, etc.
-EMBEDDING_CONFIG = {
-    "model": os.environ.get("EMBEDDING_MODEL", "text-embedding-v1"),
-    "base_url": os.environ.get("OPENAI_BASE_URL", "http://localhost:8000/v1"),
-    "api_key": os.environ.get("OPENAI_API_KEY", "not-needed"),
-}
-
-# PDF file path
-PDF_PATH = "./data/nke-10k-2023.pdf"
-
-# Text splitting configuration
-SPLITTER_CONFIG = {
-    "chunk_size": 1000,
-    "chunk_overlap": 200,
-    "add_start_index": True,
-}
+# PDF file path - resolved relative to script location
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PDF_PATH = os.path.join(SCRIPT_DIR, "..", "data", "nke-10k-2023.pdf")
 
 
 # =============================================================================
@@ -76,28 +68,8 @@ def create_sample_documents() -> List[Document]:
 
 
 # =============================================================================
-# SECTION 2: TEXT SPLITTING
+# SECTION 2: EMBEDDINGS TESTING
 # =============================================================================
-
-def split_documents(docs: List[Document]) -> List[Document]:
-    """Split documents into smaller chunks for embedding."""
-    text_splitter = RecursiveCharacterTextSplitter(**SPLITTER_CONFIG)
-    all_splits = text_splitter.split_documents(docs)
-    print(f"Split into {len(all_splits)} chunks\n")
-    return all_splits
-
-
-# =============================================================================
-# SECTION 3: EMBEDDINGS
-# =============================================================================
-
-def create_embeddings():
-    """Initialize embedding model with OpenAI-compatible API."""
-    embeddings = OpenAIEmbeddings(**EMBEDDING_CONFIG)
-    print(f"Embeddings model: {EMBEDDING_CONFIG['model']}")
-    print(f"Base URL: {EMBEDDING_CONFIG['base_url']}\n")
-    return embeddings
-
 
 def test_embeddings(embeddings, splits: List[Document]):
     """Test embedding generation."""
@@ -110,16 +82,8 @@ def test_embeddings(embeddings, splits: List[Document]):
 
 
 # =============================================================================
-# SECTION 4: VECTOR STORE
+# SECTION 2: VECTOR STORE
 # =============================================================================
-
-def create_vector_store(embeddings, splits: List[Document]) -> InMemoryVectorStore:
-    """Create vector store and index documents."""
-    vector_store = InMemoryVectorStore(embeddings)
-    ids = vector_store.add_documents(documents=splits)
-    print(f"Indexed {len(ids)} documents into vector store\n")
-    return vector_store
-
 
 def search_vector_store(vector_store: InMemoryVectorStore, query: str):
     """Perform similarity search."""
@@ -140,7 +104,7 @@ def search_with_scores(vector_store: InMemoryVectorStore, query: str):
 
 
 # =============================================================================
-# SECTION 5: RETRIEVERS
+# SECTION 3: RETRIEVERS
 # =============================================================================
 
 def create_custom_retriever(vector_store: InMemoryVectorStore):

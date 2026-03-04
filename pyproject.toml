@@ -5,6 +5,9 @@ description = "AI Agents Monorepo - A collection of agent-based applications and
 requires-python = ">=3.11"
 readme = "README.md"
 license = { file = "LICENSE" }
+dependencies = [
+    "pypdf>=6.7.5",
+]
 
 [tool.uv.workspace]
 members = [
@@ -13,6 +16,9 @@ members = [
     "packages/*",
 ]
 exclude = ["apps/langgraph-templates"]
+
+[tool.uv.sources]
+rag-utils = { workspace = true }
 
 [tool.uv]
 package = false
