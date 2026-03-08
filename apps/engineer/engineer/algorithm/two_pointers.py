@@ -243,7 +243,6 @@ class TwoPointers:
 
         return p1 == len(s)
 
-
 if __name__ == '__main__':
     slu = TwoPointers()
     # slu.minimumLength("aabccabba")
