@@ -8,7 +8,7 @@ import uuid
 """
 技能创建器代理
 
-该代理使用 `/Users/lijunyi/road/llm/agents/skills/skill-creator` 目录中的技能，
+该代理使用 `skills/skill-creator` 目录中的技能，
 专门用于创建和管理其他技能。
 
 这个版本实现了完整的 Human-in-the-loop 功能，允许在执行敏感操作前
@@ -19,7 +19,7 @@ import uuid
 def create_skill_creator_agent():
     """
     创建技能创建器代理
-    
+
     Returns:
         agent: 配置好的技能创建器代理
     """
@@ -42,8 +42,8 @@ def create_skill_creator_agent():
     agent = create_deep_agent(
         model=get_qwen_model(),
         system_prompt=system_prompt,
-        backend=FilesystemBackend(root_dir="/Users/lijunyi/road/llm/agents"),
-        skills=["/Users/lijunyi/road/llm/agents/skills/skill-creator"],
+        backend=FilesystemBackend(root_dir="."),
+        skills=["skills/skill-creator"],
         # 配置需要人工审批的工具
         interrupt_on={
             "write_file": {
@@ -63,11 +63,11 @@ def create_skill_creator_agent():
 def get_user_decision(action, review_config):
     """
     获取用户对工具调用的决策
-    
+
     Args:
         action: 工具调用信息，包含 name 和 args
         review_config: 审批配置，包含 allowed_decisions
-        
+
     Returns:
         decision: 用户决策字典
     """
@@ -76,7 +76,7 @@ def get_user_decision(action, review_config):
     print("=" * 60)
     print(f"工具名称: {action['name']}")
     print(f"工具参数:")
-    for key, value in action['args'].items():
+    for key, value in action["args"].items():
         # 如果值太长，截断显示
         if isinstance(value, str) and len(value) > 100:
             print(f"  {key}: {value[:100]}... (共 {len(value)} 字符)")
@@ -85,7 +85,7 @@ def get_user_decision(action, review_config):
     print(f"允许的操作: {', '.join(review_config['allowed_decisions'])}")
     print("=" * 60)
 
-    allowed = review_config['allowed_decisions']
+    allowed = review_config["allowed_decisions"]
 
     while True:
         print("\n请选择操作:")
@@ -98,22 +98,22 @@ def get_user_decision(action, review_config):
 
         choice = input("\n您的选择: ").lower().strip()
 
-        if choice == 'a' and "approve" in allowed:
+        if choice == "a" and "approve" in allowed:
             return {"type": "approve"}
 
-        elif choice == 'e' and "edit" in allowed:
+        elif choice == "e" and "edit" in allowed:
             print("\n请编辑参数 (JSON 格式，或输入 'cancel' 取消编辑):")
             print(f"原始参数: {action['args']}")
 
             # 简化版：让用户确认是否要编辑每个参数
             edited_args = {}
-            for key, value in action['args'].items():
+            for key, value in action["args"].items():
                 edit_choice = input(f"\n是否编辑 '{key}' (当前值: {value})? [y/n]: ").lower()
-                if edit_choice == 'y':
+                if edit_choice == "y":
                     new_value = input(f"请输入新值: ")
                     # 尝试保持原始类型
                     if isinstance(value, bool):
-                        edited_args[key] = new_value.lower() in ['true', 'yes', '1']
+                        edited_args[key] = new_value.lower() in ["true", "yes", "1"]
                     elif isinstance(value, int):
                         try:
                             edited_args[key] = int(new_value)
@@ -124,17 +124,11 @@ def get_user_decision(action, review_config):
                 else:
                     edited_args[key] = value
 
-            return {
-                "type": "edit",
-                "edited_action": {
-                    "name": action["name"],
-                    "args": edited_args
-                }
-            }
+            return {"type": "edit", "edited_action": {"name": action["name"], "args": edited_args}}
 
-        elif choice == 'r' and "reject" in allowed:
+        elif choice == "r" and "reject" in allowed:
             confirm = input("确认拒绝此操作? [y/n]: ").lower()
-            if confirm == 'y':
+            if confirm == "y":
                 return {"type": "reject"}
 
         else:
@@ -144,27 +138,27 @@ def get_user_decision(action, review_config):
 def _has_interrupt(state):
     """
     检查状态是否包含中断
-    
+
     Args:
         state: 代理状态（可以是 dict 或 StateSnapshot）
-        
+
     Returns:
         bool: 是否存在中断
     """
     # 处理 StateSnapshot 对象
-    if hasattr(state, 'next'):
+    if hasattr(state, "next"):
         # 检查 next 是否非空（存在待执行的节点通常意味着有中断）
         if state.next:
             return True
 
-    if hasattr(state, 'tasks'):
+    if hasattr(state, "tasks"):
         # 检查 tasks 中是否有中断
         if state.tasks:
             for task in state.tasks:
-                if hasattr(task, 'interrupts') and task.interrupts:
+                if hasattr(task, "interrupts") and task.interrupts:
                     return True
 
-    if hasattr(state, 'values'):
+    if hasattr(state, "values"):
         if "__interrupt__" in state.values and state.values["__interrupt__"]:
             return True
 
@@ -179,22 +173,22 @@ def _has_interrupt(state):
 def _extract_interrupt_info(state):
     """
     从状态中提取中断信息
-    
+
     Args:
         state: 代理状态（可以是 dict 或 StateSnapshot）
-        
+
     Returns:
         tuple: (action_requests, review_configs) 或 (None, None)
     """
     interrupt_data = None
 
     # 方法1：从 StateSnapshot.tasks 中提取
-    if hasattr(state, 'tasks') and state.tasks:
+    if hasattr(state, "tasks") and state.tasks:
         for task in state.tasks:
-            if hasattr(task, 'interrupts') and task.interrupts:
+            if hasattr(task, "interrupts") and task.interrupts:
                 # tasks[].interrupts 是一个列表
                 for interrupt in task.interrupts:
-                    if hasattr(interrupt, 'value'):
+                    if hasattr(interrupt, "value"):
                         interrupt_value = interrupt.value
                         if isinstance(interrupt_value, dict):
                             action_requests = interrupt_value.get("action_requests")
@@ -203,7 +197,7 @@ def _extract_interrupt_info(state):
                                 return action_requests, review_configs
 
     # 方法2：从 StateSnapshot.values 中提取
-    if hasattr(state, 'values'):
+    if hasattr(state, "values"):
         interrupt_data = state.values.get("__interrupt__")
     # 方法3：从普通字典中提取
     elif isinstance(state, dict):
@@ -219,13 +213,13 @@ def _extract_interrupt_info(state):
 def run_agent_with_hitl(agent, user_message, config=None, stream_mode="updates"):
     """
     运行代理并处理 Human-in-the-loop 交互（使用 stream 模式实时输出）
-    
+
     Args:
         agent: 代理实例
         user_message: 用户消息
         config: 配置字典（包含 thread_id）
         stream_mode: stream 模式，可选 "values", "updates", "messages" 等
-        
+
     Returns:
         最终结果
     """
@@ -238,9 +232,9 @@ def run_agent_with_hitl(agent, user_message, config=None, stream_mode="updates")
     # 使用 stream 模式首次调用代理
     has_interrupt_in_stream = False
     for chunk in agent.stream(
-            {"messages": [{"role": "user", "content": user_message}]},
-            config=config,
-            stream_mode=stream_mode
+        {"messages": [{"role": "user", "content": user_message}]},
+        config=config,
+        stream_mode=stream_mode,
     ):
         # 显示流式输出
         _display_stream_chunk(chunk, stream_mode)
@@ -258,18 +252,22 @@ def run_agent_with_hitl(agent, user_message, config=None, stream_mode="updates")
     print(f"\n🔍 [调试] has_interrupt_in_stream: {has_interrupt_in_stream}")
     print(f"🔍 [调试] current_state type: {type(current_state)}")
 
-    if hasattr(current_state, 'next'):
+    if hasattr(current_state, "next"):
         print(f"🔍 [调试] current_state.next: {current_state.next}")
 
-    if hasattr(current_state, 'tasks'):
-        print(f"🔍 [调试] current_state.tasks 数量: {len(current_state.tasks) if current_state.tasks else 0}")
+    if hasattr(current_state, "tasks"):
+        print(
+            f"🔍 [调试] current_state.tasks 数量: {len(current_state.tasks) if current_state.tasks else 0}"
+        )
         if current_state.tasks:
             for idx, task in enumerate(current_state.tasks):
                 print(f"🔍 [调试] task[{idx}] id: {task.id if hasattr(task, 'id') else 'N/A'}")
-                if hasattr(task, 'interrupts'):
-                    print(f"🔍 [调试] task[{idx}] interrupts: {len(task.interrupts) if task.interrupts else 0} 个")
+                if hasattr(task, "interrupts"):
+                    print(
+                        f"🔍 [调试] task[{idx}] interrupts: {len(task.interrupts) if task.interrupts else 0} 个"
+                    )
 
-    if hasattr(current_state, 'values'):
+    if hasattr(current_state, "values"):
         print(f"🔍 [调试] 状态 values 键: {list(current_state.values.keys())}")
     elif isinstance(current_state, dict):
         print(f"🔍 [调试] 状态 dict 键: {list(current_state.keys())}")
@@ -324,9 +322,9 @@ def run_agent_with_hitl(agent, user_message, config=None, stream_mode="updates")
         print("\n▶️  恢复代理执行...\n")
         has_interrupt_in_stream = False
         for chunk in agent.stream(
-                Command(resume={"decisions": decisions}),
-                config=config,  # 必须使用相同的 config！
-                stream_mode=stream_mode
+            Command(resume={"decisions": decisions}),
+            config=config,  # 必须使用相同的 config！
+            stream_mode=stream_mode,
         ):
             # 显示流式输出
             _display_stream_chunk(chunk, stream_mode)
@@ -347,7 +345,7 @@ def run_agent_with_hitl(agent, user_message, config=None, stream_mode="updates")
 
     # 获取最终状态以显示消息
     final_state = agent.get_state(config)
-    if hasattr(final_state, 'values'):
+    if hasattr(final_state, "values"):
         messages = final_state.values.get("messages", [])
     else:
         messages = final_state.get("messages", [])
@@ -362,7 +360,7 @@ def run_agent_with_hitl(agent, user_message, config=None, stream_mode="updates")
 def _display_stream_chunk(chunk, stream_mode):
     """
     显示 stream 输出的 chunk
-    
+
     Args:
         chunk: stream 输出的数据块
         stream_mode: stream 模式
@@ -391,7 +389,7 @@ def _display_stream_chunk(chunk, stream_mode):
                     messages = [messages]
 
                 for msg in messages:
-                    if hasattr(msg, 'content') and msg.content:
+                    if hasattr(msg, "content") and msg.content:
                         # 显示消息内容（限制长度）
                         content = str(msg.content)
                         if len(content) > 200:
@@ -400,10 +398,10 @@ def _display_stream_chunk(chunk, stream_mode):
                             print(f"  💭 {content}")
 
                     # 如果有工具调用
-                    if hasattr(msg, 'tool_calls') and msg.tool_calls:
+                    if hasattr(msg, "tool_calls") and msg.tool_calls:
                         for tool_call in msg.tool_calls:
                             print(f"  🔧 调用工具: {tool_call.get('name', 'unknown')}")
-                            if 'args' in tool_call:
+                            if "args" in tool_call:
                                 print(f"     参数: {tool_call['args']}")
 
             # 如果有其他更新
@@ -430,7 +428,7 @@ def _display_stream_chunk(chunk, stream_mode):
         # messages 模式：只显示消息
         if isinstance(chunk, tuple):
             message, metadata = chunk
-            if hasattr(message, 'content') and message.content:
+            if hasattr(message, "content") and message.content:
                 print(f"💬 {message.content}")
                 print()
 
@@ -450,10 +448,7 @@ if __name__ == "__main__":
     test_request = "请创建一个web搜索技能，能够使用Tavily客户端进行网络搜索。"
 
     try:
-        result = run_agent_with_hitl(
-            agent=skill_creator_agent,
-            user_message=test_request
-        )
+        result = run_agent_with_hitl(agent=skill_creator_agent, user_message=test_request)
 
         print("\n✨ 演示完成！")
 

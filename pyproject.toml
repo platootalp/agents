@@ -2,12 +2,10 @@
 name = "agents"
 version = "0.1.0"
 description = "AI Agents Monorepo - A collection of agent-based applications and tools"
-requires-python = ">=3.11"
+requires-python = ">=3.11,<3.13"
 readme = "README.md"
 license = { file = "LICENSE" }
-dependencies = [
-    "pypdf>=6.7.5",
-]
+dependencies = []
 
 [tool.uv.workspace]
 members = [
