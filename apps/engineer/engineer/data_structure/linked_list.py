@@ -2,7 +2,7 @@ from collections import defaultdict
 from math import gcd
 from typing import Optional, List
 
-from data_structure.stack import Stack
+from apps.engineer.engineer.data_structure.stack import Stack
 
 
 class ListNode:

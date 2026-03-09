@@ -1,5 +1,7 @@
 from collections import Counter
-from typing import List
+from typing import List, Optional
+
+from apps.engineer.engineer.data_structure.linked_list import ListNode
 
 
 class Trending100:
@@ -63,3 +65,30 @@ class Trending100:
             window[s[l]] -= 1
 
         return ans
+
+    # 206. 反转链表（递归法-尾插法）
+    def reverseList(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        # 边界
+        if not head or not head.next:
+            return head
+
+        # 翻转 head 之后的节点
+        rev_head = self.reverseList(head.next)
+        tail = head.next
+        tail.next = head
+        head.next = None
+
+        return rev_head
+
+    # 206. 反转链表（迭代法-头插法）
+    def reverseList2(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        pre = None
+        cur = head
+
+        while cur:
+            tmp = cur.next
+            cur.next = pre
+            pre = cur
+            cur = tmp
+
+        return pre
