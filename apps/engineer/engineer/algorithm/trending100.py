@@ -92,3 +92,31 @@ class Trending100:
             cur = tmp
 
         return pre
+
+    # 53. 最大子数组和
+    def maxSubArray(self, nums: List[int]) -> int:
+        # f[x]为以x结尾的子数组的最大和
+        res = nums[0]
+        dp = []
+
+        for i, num in enumerate(nums):
+            if i == 0:
+                dp[0] = num
+            else:
+                dp[i] = max(dp[i - 1], 0) + num
+            res = max(res, dp[i])
+
+        return res
+
+    # 56. 合并区间
+    def merge(self, intervals: List[List[int]]) -> List[List[int]]:
+
+        intervals.sort(key=lambda p: p[0])
+        res = []
+        for i in intervals:
+            # 能够合并
+            if res and i[0] <= res[-1][1]:
+                res[-1][1] = max(i[1], res[-1][1])
+            else:
+                res.append(i)
+        return res
