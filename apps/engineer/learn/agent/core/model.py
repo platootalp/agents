@@ -5,10 +5,12 @@ from openai import OpenAI
 
 
 class Model:
-    def __init__(self,
-                 name: Optional[str] = None,
-                 api_key: Optional[str] = None,
-                 base_url: Optional[str] = None):
+    def __init__(
+        self,
+        name: Optional[str] = None,
+        api_key: Optional[str] = None,
+        base_url: Optional[str] = None,
+    ):
         """Initialize model with OpenAI API.
 
         Args:
@@ -34,10 +36,10 @@ class Model:
         self.client = OpenAI(**client_kwargs)
 
     def generate(
-            self,
-            messages: List[Dict[str, str]],
-            temperature: float = 0.0,
-            tools: Optional[List[Dict[str, Any]]] = None,
+        self,
+        messages: List[Dict[str, str]],
+        temperature: float = 0.0,
+        tools: Optional[List[Dict[str, Any]]] = None,
     ) -> Any:
         """Generate a response from the model.
 
@@ -53,6 +55,25 @@ class Model:
             "model": self.name,
             "messages": messages,
             "temperature": temperature,
+        }
+        if tools:
+            kwargs["tools"] = tools
+            kwargs["tool_choice"] = "auto"
+
+        return self.client.chat.completions.create(**kwargs)
+
+    def stream(
+        self,
+        messages: List[Dict[str, str]],
+        temperature: float = 0.0,
+        tools: Optional[List[Dict[str, Any]]] = None,
+    ) -> Any:
+        """Steam Generate a response from the model."""
+        kwargs: Dict[str, Any] = {
+            "model": self.name,
+            "messages": messages,
+            "temperature": temperature,
+            "stream": True,
         }
         if tools:
             kwargs["tools"] = tools

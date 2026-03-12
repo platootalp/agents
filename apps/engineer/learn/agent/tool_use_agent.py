@@ -16,7 +16,7 @@ class ToolUseAgent(BaseAgent):
             description: str = "",
             model: Optional[Model] = None,
             tools: Optional[List[Tool]] = None,
-            max_steps: int = 5,
+            max_steps: Optional[int] = 10,
     ):
         super().__init__(name, description, model, max_steps)
         self.tools = tools or []

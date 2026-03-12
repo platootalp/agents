@@ -15,6 +15,7 @@ Skill系统
 """
 
 import json
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import List, Optional, Dict, Any, Union, Callable
@@ -32,7 +33,7 @@ from apps.engineer.learn.agent.tool_use_agent import ToolUseAgent
 
 
 @dataclass
-class Skill:
+class Skills:
     """Skill实体 - 纯数据"""
 
     name: str
@@ -49,18 +50,18 @@ class Skill:
 # ============================================================================
 
 
-class SkillRepository:
+class SkillsRepository:
     """Skill仓库 - 只负责Skill对象的存储和检索"""
 
     def __init__(self):
-        self._skills: Dict[str, Skill] = {}
+        self._skills: Dict[str, Skills] = {}
         self._loaded: set = set()  # 跟踪已加载的skill
 
-    def register(self, skill: Skill) -> None:
+    def register(self, skill: Skills) -> None:
         """注册一个skill"""
         self._skills[skill.name] = skill
 
-    def get(self, name: str) -> Optional[Skill]:
+    def get(self, name: str) -> Optional[Skills]:
         """获取skill"""
         return self._skills.get(name)
 
@@ -94,7 +95,7 @@ class SkillRepository:
             metadata = self._parse_frontmatter(content)
 
             self.register(
-                Skill(
+                Skills(
                     name=metadata.get("name", skill_dir.name),
                     description=metadata.get("description", ""),
                     base_path=str(skill_dir),
@@ -128,7 +129,7 @@ class SkillRepository:
 # ============================================================================
 
 
-class SkillToolSet:
+class SkillsToolSet:
     """
     Skill工具集合
 
@@ -170,7 +171,7 @@ class SkillToolSet:
         },
     ]
 
-    def __init__(self, repository: SkillRepository, base_path: Path):
+    def __init__(self, repository: SkillsRepository, base_path: Path):
         self.repository = repository
         self.base_path = Path(base_path)
 
@@ -250,7 +251,7 @@ class SkillToolSet:
                 continue
 
             content = skill_file.read_text(encoding="utf-8")
-            metadata = SkillRepository._parse_frontmatter(content)
+            metadata = SkillsRepository._parse_frontmatter(content)
             if metadata.get("name") == skill_name:
                 return dir_path
 
@@ -309,7 +310,7 @@ class SkillToolSet:
         return f"=== {file_path} ===\n\n{content}\n\n=== End of {file_path} ==="
 
     def _handle_grep_content(
-            self, skill_name: str, query: str, file_pattern: str = "*", **_
+        self, skill_name: str, query: str, file_pattern: str = "*", **_
     ) -> str:
         """在skill文件中搜索内容"""
         skill_path = self._get_skill_path(skill_name)
@@ -372,7 +373,7 @@ class SkillToolSet:
 # ============================================================================
 
 
-class SkillUseAgent(ToolUseAgent):
+class SkillsUseAgent(ToolUseAgent):
     """
     Skill使用代理
 
@@ -385,22 +386,27 @@ class SkillUseAgent(ToolUseAgent):
     """
 
     def __init__(
-            self,
-            name: str,
-            description: str = "",
-            model: Optional[Model] = None,
-            tools: Optional[List[Tool]] = None,
-            repository: Optional[SkillRepository] = None,
-            max_steps: int = 10,
+        self,
+        name: str,
+        description: str = "",
+        model: Optional[Model] = None,
+        tools: Optional[List[Tool]] = None,
+        skills_dir: Optional[Path] = Path(__file__).parent / "skills",
+        skills_repository: Optional[SkillsRepository] = None,
+        max_steps: int = 10,
     ):
-        # 初始化repository和toolset
-        self.repository = repository or SkillRepository()
-        self.toolset: Optional[SkillToolSet] = None
-
         # 父类初始化（此时还没有toolset，稍后添加工具）
-        super().__init__(name, description, model, tools or [], max_steps)
+        super().__init__(name, description, model, tools, max_steps)
 
-    def setup_skills(self, base_path: Union[str, Path]) -> int:
+        # 初始化repository和toolset
+        self.repository = skills_repository or SkillsRepository()
+        self.toolset: Optional[SkillsToolSet] = None
+
+        if skills_dir.exists():
+            count = self._setup_skills(skills_dir)
+            print(f"Loaded {count} skills from {skills_dir}\n")
+
+    def _setup_skills(self, base_path: Union[str, Path]) -> int:
         """
         设置skill目录
 
@@ -414,7 +420,7 @@ class SkillUseAgent(ToolUseAgent):
         count = self.repository.load_from_directory(base_path)
 
         # 创建toolset并获取工具
-        self.toolset = SkillToolSet(self.repository, base_path)
+        self.toolset = SkillsToolSet(self.repository, base_path)
         skill_tools = self.toolset.get_tool_definitions()
 
         # 添加到agent的工具列表
@@ -515,8 +521,159 @@ class SkillUseAgent(ToolUseAgent):
 
         return "Reached maximum steps without a final answer."
 
-    def stream(self, input: str) -> str:
-        pass
+    def stream(self, input: str, reset: bool = False) -> str:
+        """
+        Stream the response from the model, printing chunks as they arrive.
+        Supports multi-turn conversation by maintaining message history.
+
+        Args:
+            input: User input message
+            reset: If True, reset conversation history before processing
+
+        Flow:
+        # 1. Check model configuration
+        # 2. Initialize or append to message history
+        # 3. Loop until complete or max steps reached
+        #    a. Stream LLM response chunk by chunk
+        #    b. Print content chunks as they arrive
+        #    c. Accumulate tool calls from chunks
+        #    d. If tool calls found, execute them and continue
+        #    e. If no tool calls, return accumulated content
+        """
+        if not self.model:
+            return "No model configured."
+
+        # Reset or initialize history
+        if reset or not hasattr(self, "message_history") or not self.message_history:
+            self.message_history = [
+                {"role": "system", "content": self._build_system_prompt()},
+            ]
+            print("\n🆕 New Conversation\n")
+
+        # Append user message
+        self.message_history.append({"role": "user", "content": input})
+        print(f"👤 User: {input}\n")
+
+        for step in range(self.max_steps):
+            # Get tool definitions (OpenAI format)
+            openai_tools = self._get_openai_tools()
+
+            # Stream from LLM
+            stream = self.model.stream(self.message_history, tools=openai_tools)
+
+            # Accumulate content and tool calls from chunks
+            accumulated_content = ""
+            accumulated_reasoning = ""
+            accumulated_tool_calls: Dict[int, Dict[str, Any]] = {}
+
+            # Track what we're currently printing to avoid mixing outputs
+            in_thinking = False
+            in_content = False
+
+            for chunk in stream:
+                if not chunk.choices:
+                    continue
+
+                delta = chunk.choices[0].delta
+
+                # Handle reasoning/thinking content
+                if delta.reasoning_content:
+                    if not in_thinking:
+                        print("\n💭 Thinking:\n", end="", flush=True)
+                        in_thinking = True
+                        in_content = False
+                    print(delta.reasoning_content, end="", flush=True)
+                    accumulated_reasoning += delta.reasoning_content
+
+                # Handle content chunks
+                if delta.content:
+                    if not in_content:
+                        print("\n📝 Content:\n", end="", flush=True)
+                        in_content = True
+                        in_thinking = False
+                    print(delta.content, end="", flush=True)
+                    accumulated_content += delta.content
+
+                # Handle tool call chunks
+                if delta.tool_calls:
+                    for tc_delta in delta.tool_calls:
+                        index = tc_delta.index
+
+                        if index not in accumulated_tool_calls:
+                            accumulated_tool_calls[index] = {
+                                "id": tc_delta.id or "",
+                                "type": "function",
+                                "function": {"name": "", "arguments": ""},
+                            }
+
+                        if tc_delta.id:
+                            accumulated_tool_calls[index]["id"] = tc_delta.id
+                        if tc_delta.function:
+                            if tc_delta.function.name:
+                                accumulated_tool_calls[index]["function"]["name"] = (
+                                    tc_delta.function.name
+                                )
+                            if tc_delta.function.arguments:
+                                accumulated_tool_calls[index]["function"]["arguments"] += (
+                                    tc_delta.function.arguments
+                                )
+
+            tool_calls_list = list(accumulated_tool_calls.values())
+
+            # Build assistant message for history
+            assistant_msg: Dict[str, Any] = {"role": "assistant", "content": accumulated_content}
+            if tool_calls_list:
+                assistant_msg["tool_calls"] = tool_calls_list
+
+            self.message_history.append(assistant_msg)
+
+            # If no tool calls, return the accumulated content
+            if not tool_calls_list:
+                return accumulated_content.strip() if accumulated_content else ""
+
+            # Execute tool calls
+            print(f"\n🔧 Tool Calls ({len(tool_calls_list)}):")
+            for i, tool_call in enumerate(tool_calls_list, 1):
+                tool_name = tool_call["function"]["name"]
+                args = tool_call["function"]["arguments"]
+
+                print(f"  [{i}] {tool_name}")
+                if args:
+                    try:
+                        args_pretty = json.dumps(json.loads(args), indent=4)
+                        print(f"      Args: {args_pretty}")
+                    except:
+                        print(f"      Args: {args}")
+
+                # Show execution indicator
+                start_time = time.time()
+                print(f"      Executing...", end="", flush=True)
+
+                # Use toolset to execute tool
+                if self.toolset:
+                    tool_result = self.toolset.execute_tool(tool_name, args)
+                else:
+                    tool_result = "Skill toolset not initialized."
+
+                elapsed = (time.time() - start_time) * 1000
+                print(f" ✓ Done ({elapsed:.0f}ms)")
+
+                result_display = (
+                    tool_result[:300] + "..." if len(tool_result) > 300 else tool_result
+                )
+                print(f"      Result: {result_display}")
+
+                self.message_history.append(
+                    {
+                        "role": "tool",
+                        "tool_call_id": tool_call["id"],
+                        "content": str(tool_result),
+                    }
+                )
+
+            print()  # Empty line after tools section
+
+        return "Reached maximum steps without a final answer."
 
 
 # ============================================================================
@@ -524,47 +681,40 @@ class SkillUseAgent(ToolUseAgent):
 # ============================================================================
 
 
-def search_tool(query: str) -> str:
-    return f"Search: {query}" if query.strip() else "Empty query"
-
-
-def calculator_tool(expr: str) -> str:
-    import re
-
-    expr = expr.strip()
-    if not expr:
-        return "Empty expression"
-    if not re.match(r"^[0-9+\-*/().\s]+$", expr):
-        return "Invalid characters"
-    try:
-        return str(eval(expr, {"__builtins__": {}}))
-    except Exception as e:
-        return f"Error: {e}"
+# def search_tool(query: str) -> str:
+#     return f"Search: {query}" if query.strip() else "Empty query"
+#
+#
+# def calculator_tool(expr: str) -> str:
+#     import re
+#
+#     expr = expr.strip()
+#     if not expr:
+#         return "Empty expression"
+#     if not re.match(r"^[0-9+\-*/().\s]+$", expr):
+#         return "Invalid characters"
+#     try:
+#         return str(eval(expr, {"__builtins__": {}}))
+#     except Exception as e:
+#         return f"Error: {e}"
 
 
 def demo():
     load_dotenv()
 
     # 创建agent
-    agent = SkillUseAgent(
+    agent = SkillsUseAgent(
         name="SkillAgent",
         model=Model(),
-        tools=[
-            Tool(name="search", description="Web search", func=search_tool),
-            Tool(name="calculator", description="Calculator", func=calculator_tool),
-        ],
-        max_steps=10,  # 增加步数限制
+        # tools=[
+        #     Tool(name="search", description="Web search", func=search_tool),
+        #     Tool(name="calculator", description="Calculator", func=calculator_tool),
+        # ],
+        max_steps=20,  # 增加步数限制
     )
 
-    # 设置skill目录
-    skills_dir = Path(__file__).parent / "skills"
-    if skills_dir.exists():
-        count = agent.setup_skills(skills_dir)
-        print(f"Loaded {count} skills from {skills_dir}\n")
-
     # 运行示例
-    result = agent.invoke("生成一个agent介绍PPT")
-    print(f"Result:\n{result}")
+    agent.stream("生成一个agent介绍PPT")
 
 
 if __name__ == "__main__":
