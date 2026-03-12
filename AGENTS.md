@@ -73,7 +73,7 @@ uv run ruff check .
 uv run mypy .
 
 # Run specific app
-cd apps/engineer && uv run python examples/tools_example.py
+cd apps/framework && uv run python examples/tools_example.py
 ```
 
 ## NOTES

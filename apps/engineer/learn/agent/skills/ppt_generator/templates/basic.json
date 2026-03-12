@@ -1,0 +1,15 @@
+{
+  "name": "basic",
+  "description": "简洁基础模板",
+  "colors": {
+    "primary": "#2E5090",
+    "secondary": "#4A90E2",
+    "background": "#FFFFFF",
+    "text": "#333333"
+  },
+  "fonts": {
+    "title": "Arial Bold",
+    "body": "Arial"
+  },
+  "layouts": ["title", "content", "two-column", "image-text"]
+}

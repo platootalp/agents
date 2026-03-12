@@ -95,7 +95,7 @@ uv run python examples/tools_example.py
 uv run python examples/llm_integration_example.py
 
 # Run specific agent
-uv run python engineer/core/agents/agent.py
+uv run python framework/core/agents/agent.py
 
 # Run tests
 uv run pytest test/

@@ -20,7 +20,7 @@ from memory_agent.graph import builder
             "Max is a golden retriever and he's 5 years old. Please remember this too.",
         ],
         [
-            "Hello, I'm Charlie. I work as a software engineer and I'm passionate about AI. Remember this.",
+            "Hello, I'm Charlie. I work as a software framework and I'm passionate about AI. Remember this.",
             "I specialize in machine learning algorithms and I'm currently working on a project involving natural language processing.",
             "My main goal is to improve sentiment analysis accuracy in multi-lingual texts. It's challenging but exciting.",
             "We've made some progress using transformer models, but we're still working on handling context and idioms across languages.",

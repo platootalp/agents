@@ -40,7 +40,7 @@ cd agents
 uv sync
 
 # Or install for a specific app
-uv sync --package engineer
+uv sync --package framework
 ```
 
 ### Running Applications
@@ -48,8 +48,8 @@ uv sync --package engineer
 Each app in `apps/` has its own dependencies and can be run independently:
 
 ```bash
-# Run engineer app
-cd apps/engineer
+# Run framework app
+cd apps/framework
 uv run python -m src.main
 
 # Run huggingface example

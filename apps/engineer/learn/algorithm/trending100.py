@@ -1,7 +1,7 @@
 from collections import Counter
 from typing import List, Optional
 
-from apps.engineer.engineer.data_structure.linked_list import ListNode
+from apps.engineer.framework.data_structure.linked_list import ListNode
 
 
 class Trending100:
@@ -120,3 +120,8 @@ class Trending100:
             else:
                 res.append(i)
         return res
+
+    def isPalindrome(self, head: Optional[ListNode]) -> bool:
+
+        # 翻转链表
+        p = self.reverseList(head)

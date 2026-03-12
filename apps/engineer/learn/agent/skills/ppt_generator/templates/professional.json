@@ -1,0 +1,16 @@
+{
+  "name": "professional",
+  "description": "专业商务模板",
+  "colors": {
+    "primary": "#1A1A2E",
+    "secondary": "#16213E",
+    "accent": "#E94560",
+    "background": "#F5F5F5",
+    "text": "#1A1A2E"
+  },
+  "fonts": {
+    "title": "Helvetica Neue Bold",
+    "body": "Helvetica Neue Light"
+  },
+  "layouts": ["title", "agenda", "content", "data", "team", "closing"]
+}
