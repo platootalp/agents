@@ -1,40 +1,62 @@
-"""McpAgent - An agent that can connect to MCP servers and use their tools.
+"""McpAgent - An agent that connects to MCP servers using FastMCP.
 
-MCP (Model Context Protocol) is a protocol for standardizing AI model interactions
-with external tools and data sources. This agent extends ToolUseAgent to support
-connecting to MCP servers and utilizing their tools.
+This module provides McpAgent which connects to MCP servers using the FastMCP
+library (PrefectHQ/fastmcp) - a simplified, Pythonic MCP implementation.
+
+Install: uv add fastmcp
 """
 
 import asyncio
 import json
-from typing import Optional, List, Dict, Any
-from contextlib import AsyncExitStack
+import time
+from typing import Optional, List, Dict, Any, AsyncIterator
+from dataclasses import dataclass, field
+
+from dotenv import load_dotenv
 
 from apps.engineer.learn.agent.core.model import Model
 from apps.engineer.learn.agent.core.tool import Tool
 from apps.engineer.learn.agent.tool_use_agent import ToolUseAgent
 
 try:
-    from mcp import ClientSession, StdioServerParameters
-    from mcp.client.stdio import stdio_client
-    from mcp.types import TextContent, Tool as MCPTool
+    from fastmcp import Client
+    from fastmcp.client.transports import PythonStdioTransport
 
-    MCP_AVAILABLE = True
+    FASTMCP_AVAILABLE = True
 except ImportError:
-    MCP_AVAILABLE = False
+    FASTMCP_AVAILABLE = False
+
+
+@dataclass
+class StreamChunk:
+    """Represents a chunk of streamed response."""
+
+    content: str = ""
+    reasoning: str = ""
+    tool_calls: List[Dict[str, Any]] = field(default_factory=list)
+    is_complete: bool = False
+
+
+@dataclass
+class ToolCallResult:
+    """Result of a tool call execution."""
+
+    tool_call_id: str
+    tool_name: str
+    result: str
+    elapsed_ms: float
+    args: str = ""  # JSON string of arguments for display
 
 
 class McpAgent(ToolUseAgent):
-    """An agent that connects to MCP servers and uses their tools.
+    """An agent that connects to MCP servers and uses their tools via FastMCP.
 
-    This agent extends ToolUseAgent to support MCP protocol, allowing it to:
-    - Connect to MCP servers via stdio or other transports
-    - Discover and use tools exposed by MCP servers
-    - Interact with LLMs using MCP-provided tools
+    This agent extends ToolUseAgent to support MCP protocol using FastMCP's
+    simplified Client API.
 
     Example:
         ```python
-        # Connect to an MCP server via stdio
+        # Stdio transport (default, most reliable)
         agent = McpAgent(
             name="MCP Agent",
             model=Model(),
@@ -42,7 +64,25 @@ class McpAgent(ToolUseAgent):
             args=["mcp_server.py"],
         )
 
+        # Or HTTP transport
+        agent = McpAgent(
+            name="MCP Agent",
+            model=Model(),
+            server_url="http://localhost:8000/mcp",
+        )
+
+        # Synchronous usage
         result = agent.invoke("What can you help me with?")
+
+        # Streaming usage
+        result = agent.stream("Tell me a story")
+
+        # Async usage
+        result = await agent.ainvoke("What can you help me with?")
+
+        # Async streaming
+        async for chunk in agent.astream("Tell me a story"):
+            print(chunk.content, end="")
         ```
     """
 
@@ -53,7 +93,9 @@ class McpAgent(ToolUseAgent):
         model: Optional[Model] = None,
         tools: Optional[List[Tool]] = None,
         max_steps: int = 10,
-        # MCP-specific parameters
+        # HTTP transport
+        server_url: Optional[str] = None,
+        # Stdio transport
         command: Optional[str] = None,
         args: Optional[List[str]] = None,
         env: Optional[Dict[str, str]] = None,
@@ -66,26 +108,43 @@ class McpAgent(ToolUseAgent):
             model: LLM model instance
             tools: Additional local tools (optional)
             max_steps: Maximum reasoning steps
-            command: Command to start MCP server (e.g., "python", "npx")
-            args: Arguments for the command (e.g., ["server.py"])
-            env: Environment variables for the MCP server
+            server_url: URL for HTTP transport (e.g., "http://localhost:8000/mcp")
+            command: Command for stdio transport (e.g., "python")
+            args: Arguments for the command
+            env: Environment variables
         """
         super().__init__(name, description, model, tools, max_steps)
 
-        if not MCP_AVAILABLE:
-            raise ImportError("MCP SDK not installed. Install with: uv add mcp")
+        if not FASTMCP_AVAILABLE:
+            raise ImportError("FastMCP not installed. Install with: uv add fastmcp")
 
-        self.command = command
-        self.args = args or []
-        self.env = env
+        if server_url:
+            # HTTP transport
+            self._client = Client(server_url)
+        elif command and args:
+            # Stdio transport using PythonStdioTransport
+            # First arg is the script path, rest are script arguments
+            script_path = args[0]
+            script_args = args[1:] if len(args) > 1 else None
+            transport = PythonStdioTransport(
+                script_path=script_path,
+                args=script_args,
+                env=env,
+                python_cmd=command,
+            )
+            self._client = Client(transport)
+        else:
+            raise ValueError("Must provide either server_url or command+args")
 
-        # MCP client state
-        self._session: Optional[ClientSession] = None
-        self._exit_stack: Optional[AsyncExitStack] = None
-        self._mcp_tools: List[MCPTool] = []
+        self._connected = False
 
-        # System prompt updated for MCP context
-        self.SYSTEM_PROMPT = (
+    def _build_system_prompt(self) -> str:
+        """Build the system prompt for the agent.
+
+        Returns:
+            System prompt string
+        """
+        return (
             "You are a helpful assistant that can use tools from MCP servers "
             "to help answer user queries. Use the available tools when needed, "
             "and provide a clear final answer."
@@ -94,43 +153,31 @@ class McpAgent(ToolUseAgent):
     async def connect(self) -> None:
         """Connect to the MCP server.
 
-        This method establishes a connection to the MCP server using stdio
-        transport and initializes the session.
+        For FastMCP, connection is handled automatically via async context manager.
+        This method is kept for API compatibility.
         """
-        if not self.command:
-            raise ValueError("No command specified for MCP server connection")
+        self._connected = True
 
-        self._exit_stack = AsyncExitStack()
+    async def disconnect(self) -> None:
+        """Disconnect from the MCP server."""
+        self._connected = False
 
-        # Create server parameters
-        server_params = StdioServerParameters(
-            command=self.command,
-            args=self.args,
-            env=self.env,
-        )
+    async def _list_tools(self) -> List[Dict[str, Any]]:
+        """List available tools from the MCP server.
 
-        # Connect to the server
-        stdio_transport = await self._exit_stack.enter_async_context(stdio_client(server_params))
-        read_stream, write_stream = stdio_transport
-
-        # Create session
-        self._session = await self._exit_stack.enter_async_context(
-            ClientSession(read_stream, write_stream)
-        )
-
-        # Initialize the session
-        await self._session.initialize()
-
-        # Load available tools from MCP server
-        await self._load_mcp_tools()
-
-    async def _load_mcp_tools(self) -> None:
-        """Load tools from the MCP server."""
-        if not self._session:
-            raise RuntimeError("Not connected to MCP server")
-
-        tools_result = await self._session.list_tools()
-        self._mcp_tools = tools_result.tools
+        Returns:
+            List of tool definitions
+        """
+        async with self._client as client:
+            tools = await client.list_tools()
+            return [
+                {
+                    "name": tool.name,
+                    "description": tool.description or "",
+                    "parameters": tool.inputSchema,
+                }
+                for tool in tools
+            ]
 
     def _get_openai_tools(self) -> Optional[List[Dict[str, Any]]]:
         """Convert all tools (local + MCP) to OpenAI function calling format."""
@@ -150,20 +197,27 @@ class McpAgent(ToolUseAgent):
                     }
                 )
 
-        # Add MCP tools
-        for mcp_tool in self._mcp_tools:
-            openai_tools.append(
-                {
-                    "type": "function",
-                    "function": {
-                        "name": mcp_tool.name,
-                        "description": mcp_tool.description or "",
-                        "parameters": mcp_tool.inputSchema,
-                    },
-                }
-            )
-
         return openai_tools if openai_tools else None
+
+    async def _get_all_tools(self) -> List[Dict[str, Any]]:
+        """Get combined list of local and MCP tools.
+
+        Returns:
+            Combined list of all available tools
+        """
+        all_tools = self._get_openai_tools() or []
+
+        if self._connected:
+            mcp_tools = await self._list_tools()
+            for tool in mcp_tools:
+                all_tools.append(
+                    {
+                        "type": "function",
+                        "function": tool,
+                    }
+                )
+
+        return all_tools
 
     async def _call_mcp_tool(self, tool_name: str, arguments: Dict[str, Any]) -> str:
         """Call a tool on the MCP server.
@@ -175,118 +229,22 @@ class McpAgent(ToolUseAgent):
         Returns:
             Tool result as a string
         """
-        if not self._session:
-            raise RuntimeError("Not connected to MCP server")
+        async with self._client as client:
+            try:
+                result = await client.call_tool(tool_name, arguments)
 
-        try:
-            result = await self._session.call_tool(tool_name, arguments)
+                # result is CallToolResult with content list
+                content_parts = []
+                for item in result.content:
+                    if hasattr(item, "text"):
+                        content_parts.append(item.text)
+                    else:
+                        content_parts.append(str(item))
 
-            # Extract text content from result
-            content_parts = []
-            for content in result.content:
-                if isinstance(content, TextContent):
-                    content_parts.append(content.text)
-                else:
-                    content_parts.append(str(content))
+                return "\n".join(content_parts) if content_parts else "No result"
 
-            return "\n".join(content_parts) if content_parts else "No result"
-
-        except Exception as e:
-            return f"MCP tool error: {type(e).__name__}: {e}"
-
-    def invoke(self, input: str) -> str:
-        """Process user input using MCP tools and LLM.
-
-        Args:
-            input: User query string
-
-        Returns:
-            Final response from the agent
-        """
-        if not MCP_AVAILABLE:
-            return "MCP SDK not available. Install with: uv add mcp"
-
-        if not self.model:
-            return "No model configured."
-
-        # Run the async workflow
-        return asyncio.run(self._invoke_async(input))
-
-    async def _invoke_async(self, input: str) -> str:
-        """Async implementation of invoke."""
-        # Connect if not already connected
-        if not self._session:
-            await self.connect()
-
-        # Initialize history
-        self.message_history = [
-            {"role": "system", "content": self.SYSTEM_PROMPT},
-            {"role": "user", "content": input},
-        ]
-
-        step = 0
-        while step < self.max_steps:
-            # Get available tools in OpenAI format
-            openai_tools = self._get_openai_tools()
-
-            # Generate response with tool support
-            response = self.model.generate(self.message_history, tools=openai_tools)
-            message = response.choices[0].message
-
-            # Add assistant message to history
-            assistant_msg: Dict[str, Any] = {
-                "role": "assistant",
-                "content": message.content or "",
-            }
-            if message.tool_calls:
-                assistant_msg["tool_calls"] = [
-                    {
-                        "id": tc.id,
-                        "type": tc.type,
-                        "function": {
-                            "name": tc.function.name,
-                            "arguments": tc.function.arguments,
-                        },
-                    }
-                    for tc in message.tool_calls
-                ]
-            self.message_history.append(assistant_msg)
-
-            # Check if model wants to call tools
-            if message.tool_calls:
-                for tool_call in message.tool_calls:
-                    tool_name = tool_call.function.name
-                    try:
-                        tool_args = json.loads(tool_call.function.arguments)
-                    except json.JSONDecodeError:
-                        tool_args = {"query": tool_call.function.arguments}
-
-                    # Check if it's a local tool or MCP tool
-                    tool_result = self._call_local_tool(tool_name, tool_args)
-
-                    if tool_result is None:
-                        # Try MCP tool
-                        tool_result = await self._call_mcp_tool(tool_name, tool_args)
-
-                    # Add tool response to history
-                    self.message_history.append(
-                        {
-                            "role": "tool",
-                            "tool_call_id": tool_call.id,
-                            "content": str(tool_result),
-                        }
-                    )
-
-                step += 1
-                continue
-
-            # Return the final answer
-            if message.content:
-                return message.content.strip()
-
-            step += 1
-
-        return "Reached maximum steps without a final answer."
+            except Exception as e:
+                return f"MCP tool error: {type(e).__name__}: {e}"
 
     def _call_local_tool(self, tool_name: str, args: Dict[str, Any]) -> Optional[str]:
         """Call a local tool by name.
@@ -302,7 +260,6 @@ class McpAgent(ToolUseAgent):
             if t.name.lower() == tool_name.lower():
                 if callable(t.func):
                     try:
-                        # Extract query from args or use full args
                         query = args.get("query", "") if isinstance(args, dict) else str(args)
                         return t.func(query)
                     except Exception as e:
@@ -310,39 +267,623 @@ class McpAgent(ToolUseAgent):
                 return t.description or f"No callable for tool {t.name}"
         return None
 
-    async def disconnect(self) -> None:
-        """Disconnect from the MCP server and cleanup resources."""
-        if self._exit_stack:
-            await self._exit_stack.aclose()
-            self._exit_stack = None
-            self._session = None
-            self._mcp_tools = []
+    async def _execute_single_tool(self, tool_call: Dict[str, Any]) -> ToolCallResult:
+        """Execute a single tool call.
 
-    def __del__(self):
-        """Cleanup when the agent is garbage collected."""
-        if self._session or self._exit_stack:
+        Args:
+            tool_call: Tool call dictionary with 'id', 'function' keys
+
+        Returns:
+            ToolCallResult with execution details
+        """
+        tool_name = tool_call["function"]["name"]
+        tool_id = tool_call["id"]
+
+        try:
+            tool_args = json.loads(tool_call["function"]["arguments"])
+        except json.JSONDecodeError:
+            tool_args = {"query": tool_call["function"]["arguments"]}
+
+        start_time = time.time()
+
+        # Try local tool first
+        result = self._call_local_tool(tool_name, tool_args)
+
+        # If not local, try MCP tool
+        if result is None:
+            result = await self._call_mcp_tool(tool_name, tool_args)
+
+        elapsed_ms = (time.time() - start_time) * 1000
+
+        return ToolCallResult(
+            tool_call_id=tool_id,
+            tool_name=tool_name,
+            result=str(result),
+            elapsed_ms=elapsed_ms,
+            args=tool_call["function"]["arguments"],
+        )
+
+    async def _execute_tool_calls(self, tool_calls: List[Dict[str, Any]]) -> List[ToolCallResult]:
+        """Execute multiple tool calls.
+
+        Args:
+            tool_calls: List of tool call dictionaries
+
+        Returns:
+            List of ToolCallResult
+        """
+        results = []
+        for tool_call in tool_calls:
+            result = await self._execute_single_tool(tool_call)
+            results.append(result)
+        return results
+
+    def _format_tool_args(self, args: str) -> str:
+        """Format tool arguments for display.
+
+        Args:
+            args: JSON string of arguments
+
+        Returns:
+            Formatted string
+        """
+        if args:
             try:
-                asyncio.run(self.disconnect())
-            except Exception:
-                pass  # Ignore cleanup errors during garbage collection
+                return json.dumps(json.loads(args), indent=4)
+            except:
+                return args
+        return ""
 
-    def stream(self, input: str) -> str:
-        """Stream processing is not yet implemented for MCP agent."""
-        # For now, delegate to invoke
-        return self.invoke(input)
+    def _print_tool_execution(self, result: ToolCallResult, index: int = 0) -> None:
+        """Print tool execution details.
 
-    def get_mcp_tools(self) -> List[MCPTool]:
-        """Get the list of MCP tools available on the connected server.
+        Args:
+            result: ToolCallResult to display
+            index: Optional index for display
+        """
+        prefix = f"  [{index}] " if index > 0 else "  "
+        print(f"{prefix}{result.tool_name}")
+
+        # Try to format arguments if available
+        if result.args:
+            args_pretty = self._format_tool_args(result.args)
+            if args_pretty:
+                print(f"      Args: {args_pretty}")
+
+        print(f"      Executing...", end="", flush=True)
+        print(f" ✓ Done ({result.elapsed_ms:.0f}ms)")
+
+        result_display = result.result[:300] + "..." if len(result.result) > 300 else result.result
+        print(f"      Result: {result_display}")
+
+    def _convert_api_tool_calls(self, api_tool_calls: Optional[List[Any]]) -> List[Dict[str, Any]]:
+        """Convert API tool call objects to dict format.
+
+        Args:
+            api_tool_calls: List of tool call objects from API response
 
         Returns:
-            List of MCP tool definitions
+            List of tool call dicts
         """
-        return self._mcp_tools.copy()
+        if not api_tool_calls:
+            return []
+        return [
+            {
+                "id": tc.id,
+                "type": tc.type,
+                "function": {
+                    "name": tc.function.name,
+                    "arguments": tc.function.arguments,
+                },
+            }
+            for tc in api_tool_calls
+        ]
 
-    async def is_connected(self) -> bool:
-        """Check if the agent is connected to an MCP server.
+    def _build_assistant_message(
+        self, content: str, tool_calls: Optional[List[Dict[str, Any]]] = None
+    ) -> Dict[str, Any]:
+        """Build an assistant message for conversation history.
+
+        Args:
+            content: Message content
+            tool_calls: Optional list of tool calls
 
         Returns:
-            True if connected, False otherwise
+            Assistant message dict
         """
-        return self._session is not None
+        msg: Dict[str, Any] = {"role": "assistant", "content": content}
+        if tool_calls:
+            msg["tool_calls"] = tool_calls
+        return msg
+
+    def _build_tool_response_message(self, tool_call_id: str, content: str) -> Dict[str, Any]:
+        """Build a tool response message for conversation history.
+
+        Args:
+            tool_call_id: ID of the tool call
+            content: Response content
+
+        Returns:
+            Tool response message dict
+        """
+        return {
+            "role": "tool",
+            "tool_call_id": tool_call_id,
+            "content": str(content),
+        }
+
+    # =========================================================================
+    # Conversation Loop Core
+    # =========================================================================
+
+    async def _run_conversation_loop(
+        self,
+        input: str,
+        streaming: bool = False,
+        print_output: bool = False,
+    ) -> str:
+        """Core conversation loop implementation.
+
+        Args:
+            input: User input
+            streaming: Whether to use streaming mode
+            print_output: Whether to print output to console
+
+        Returns:
+            Final response string
+        """
+        if not self._connected:
+            await self.connect()
+
+        # Get all available tools
+        all_tools = await self._get_all_tools()
+
+        # Initialize history
+        self.message_history = [
+            {"role": "system", "content": self._build_system_prompt()},
+            {"role": "user", "content": input},
+        ]
+
+        step = 0
+        while step < self.max_steps:
+            if streaming:
+                # Streaming mode
+                final_content = ""
+                accumulated_tool_calls: Dict[int, Dict[str, Any]] = {}
+
+                stream = self.model.stream(self.message_history, tools=all_tools or None)
+
+                for chunk in stream:
+                    if not chunk.choices:
+                        continue
+
+                    delta = chunk.choices[0].delta
+
+                    if delta.content:
+                        final_content += delta.content
+                        if print_output:
+                            print(delta.content, end="", flush=True)
+
+                    if delta.tool_calls:
+                        for tc_delta in delta.tool_calls:
+                            index = tc_delta.index
+                            if index not in accumulated_tool_calls:
+                                accumulated_tool_calls[index] = {
+                                    "id": tc_delta.id or "",
+                                    "type": "function",
+                                    "function": {"name": "", "arguments": ""},
+                                }
+                            if tc_delta.id:
+                                accumulated_tool_calls[index]["id"] = tc_delta.id
+                            if tc_delta.function:
+                                if tc_delta.function.name:
+                                    accumulated_tool_calls[index]["function"]["name"] = (
+                                        tc_delta.function.name
+                                    )
+                                if tc_delta.function.arguments:
+                                    accumulated_tool_calls[index]["function"]["arguments"] += (
+                                        tc_delta.function.arguments
+                                    )
+
+                tool_calls_list = list(accumulated_tool_calls.values())
+
+                # Add assistant message
+                assistant_msg = self._build_assistant_message(final_content, tool_calls_list)
+                self.message_history.append(assistant_msg)
+
+                if not tool_calls_list:
+                    return final_content.strip() if final_content else ""
+
+                # Execute tool calls
+                if print_output:
+                    print(f"\n🔧 Tool Calls ({len(tool_calls_list)}):")
+
+                results = await self._execute_tool_calls(tool_calls_list)
+
+                for i, result in enumerate(results, 1):
+                    if print_output:
+                        self._print_tool_execution(result, i)
+
+                    # Add tool response to history
+                    tool_msg = self._build_tool_response_message(result.tool_call_id, result.result)
+                    self.message_history.append(tool_msg)
+
+                if print_output:
+                    print()
+
+            else:
+                # Non-streaming mode
+                response = self.model.generate(self.message_history, tools=all_tools or None)
+                message = response.choices[0].message
+
+                # Add assistant message
+                tool_calls = self._convert_api_tool_calls(message.tool_calls)
+                assistant_msg = self._build_assistant_message(message.content or "", tool_calls)
+                self.message_history.append(assistant_msg)
+
+                # Check if model wants to call tools
+                if message.tool_calls:
+                    for tool_call in message.tool_calls:
+                        tool_name = tool_call.function.name
+                        try:
+                            tool_args = json.loads(tool_call.function.arguments)
+                        except json.JSONDecodeError:
+                            tool_args = {"query": tool_call.function.arguments}
+
+                        result = self._call_local_tool(tool_name, tool_args)
+
+                        if result is None:
+                            result = await self._call_mcp_tool(tool_name, tool_args)
+
+                        # Add tool response
+                        tool_msg = self._build_tool_response_message(tool_call.id, str(result))
+                        self.message_history.append(tool_msg)
+
+                    step += 1
+                    continue
+
+                # Return final answer
+                if message.content:
+                    return message.content.strip()
+
+            step += 1
+
+        return "Reached maximum steps without a final answer."
+
+    # =========================================================================
+    # Public API
+    # =========================================================================
+
+    def invoke(self, input: str) -> str:
+        """Process user input using MCP tools and LLM (synchronous).
+
+        Args:
+            input: User query string
+
+        Returns:
+            Final response from the agent
+        """
+        if not FASTMCP_AVAILABLE:
+            return "FastMCP not available. Install with: uv add fastmcp"
+
+        if not self.model:
+            return "No model configured."
+
+        try:
+            loop = asyncio.get_running_loop()
+            if loop.is_running():
+                raise RuntimeError(
+                    "Cannot call invoke() from an async context. "
+                    "Use 'await agent.ainvoke(input)' instead."
+                )
+        except RuntimeError:
+            pass
+
+        return asyncio.run(self._run_conversation_loop(input, streaming=False))
+
+    async def ainvoke(self, input: str) -> str:
+        """Async version of invoke.
+
+        Args:
+            input: User query string
+
+        Returns:
+            Final response from the agent
+        """
+        if not FASTMCP_AVAILABLE:
+            return "FastMCP not available. Install with: uv add fastmcp"
+
+        if not self.model:
+            return "No model configured."
+
+        return await self._run_conversation_loop(input, streaming=False)
+
+    def stream(self, input: str, reset: bool = False) -> str:
+        """Stream the response from the model (synchronous).
+
+        Note: This method should only be called from synchronous contexts.
+        When in an async context, use 'astream()' instead.
+
+        Args:
+            input: User input message
+            reset: If True, reset conversation history before processing
+
+        Returns:
+            Final accumulated response
+        """
+        if not self.model:
+            return "No model configured."
+
+        # Check if we're in an async context
+        try:
+            loop = asyncio.get_running_loop()
+            if loop.is_running():
+                raise RuntimeError(
+                    "Cannot call stream() from an async context. "
+                    "Use 'async for chunk in agent.astream(input)' instead."
+                )
+        except RuntimeError:
+            pass
+
+        # Reset or initialize history
+        if reset or not hasattr(self, "message_history") or not self.message_history:
+            self.message_history = [
+                {"role": "system", "content": self._build_system_prompt()},
+            ]
+            print("\n🆕 New Conversation\n")
+
+        # Append user message
+        self.message_history.append({"role": "user", "content": input})
+        print(f"👤 User: {input}\n")
+
+        # Run streaming loop with output printing
+        return asyncio.run(self._run_conversation_loop(input, streaming=True, print_output=True))
+
+    async def astream(self, input: str, reset: bool = False) -> AsyncIterator[StreamChunk]:
+        """Async streaming response generator.
+
+        Args:
+            input: User input message
+            reset: If True, reset conversation history before processing
+
+        Yields:
+            StreamChunk objects containing content, reasoning, and tool calls
+        """
+        if not self.model:
+            yield StreamChunk(content="No model configured.", is_complete=True)
+            return
+
+        if not FASTMCP_AVAILABLE:
+            yield StreamChunk(
+                content="FastMCP not available. Install with: uv add fastmcp",
+                is_complete=True,
+            )
+            return
+
+        # Reset or initialize history
+        if reset or not hasattr(self, "message_history") or not self.message_history:
+            self.message_history = [
+                {"role": "system", "content": self._build_system_prompt()},
+            ]
+
+        self.message_history.append({"role": "user", "content": input})
+
+        if not self._connected:
+            await self.connect()
+
+        all_tools = await self._get_all_tools()
+
+        step = 0
+        while step < self.max_steps:
+            accumulated_content = ""
+            accumulated_reasoning = ""
+            accumulated_tool_calls: Dict[int, Dict[str, Any]] = {}
+
+            stream = self.model.stream(self.message_history, tools=all_tools or None)
+
+            for chunk in stream:
+                if not chunk.choices:
+                    continue
+
+                delta = chunk.choices[0].delta
+
+                # Handle content
+                if delta.content:
+                    accumulated_content += delta.content
+                    yield StreamChunk(content=delta.content)
+
+                # Handle reasoning
+                if hasattr(delta, "reasoning_content") and delta.reasoning_content:
+                    accumulated_reasoning += delta.reasoning_content
+                    yield StreamChunk(reasoning=delta.reasoning_content)
+
+                # Handle tool calls
+                if delta.tool_calls:
+                    for tc_delta in delta.tool_calls:
+                        index = tc_delta.index
+                        if index not in accumulated_tool_calls:
+                            accumulated_tool_calls[index] = {
+                                "id": tc_delta.id or "",
+                                "type": "function",
+                                "function": {"name": "", "arguments": ""},
+                            }
+                        if tc_delta.id:
+                            accumulated_tool_calls[index]["id"] = tc_delta.id
+                        if tc_delta.function:
+                            if tc_delta.function.name:
+                                accumulated_tool_calls[index]["function"]["name"] = (
+                                    tc_delta.function.name
+                                )
+                            if tc_delta.function.arguments:
+                                accumulated_tool_calls[index]["function"]["arguments"] += (
+                                    tc_delta.function.arguments
+                                )
+
+            tool_calls_list = list(accumulated_tool_calls.values())
+
+            # Add assistant message to history
+            assistant_msg = self._build_assistant_message(accumulated_content, tool_calls_list)
+            self.message_history.append(assistant_msg)
+
+            if tool_calls_list:
+                # Execute tool calls and yield results
+                results = await self._execute_tool_calls(tool_calls_list)
+
+                for result in results:
+                    yield StreamChunk(
+                        tool_calls=[
+                            {
+                                "name": result.tool_name,
+                                "result": result.result,
+                                "elapsed_ms": result.elapsed_ms,
+                            }
+                        ]
+                    )
+
+                    # Add to history
+                    tool_msg = self._build_tool_response_message(result.tool_call_id, result.result)
+                    self.message_history.append(tool_msg)
+
+                step += 1
+            else:
+                # No tool calls, we're done
+                yield StreamChunk(is_complete=True)
+                return
+
+        yield StreamChunk(
+            content="Reached maximum steps without a final answer.",
+            is_complete=True,
+        )
+
+
+# =============================================================================
+# Example MCP Server (using FastMCP)
+# =============================================================================
+
+"""
+Save this as 'simple_server.py':
+
+------------------------------------------------------------------------------
+from fastmcp import FastMCP
+
+mcp = FastMCP("Demo Server")
+
+@mcp.tool
+def calculator(operation: str, a: float, b: float) -> str:
+    '''Perform basic math operations.'''
+    if operation == "add":
+        return f"Result: {a + b}"
+    elif operation == "subtract":
+        return f"Result: {a - b}"
+    elif operation == "multiply":
+        return f"Result: {a * b}"
+    elif operation == "divide":
+        if b == 0:
+            return "Error: Division by zero"
+        return f"Result: {a / b}"
+    return "Error: Unknown operation"
+
+@mcp.tool
+def weather(city: str) -> str:
+    '''Get weather for a city.'''
+    return f"Weather in {city}: Sunny, 25°C"
+
+if __name__ == "__main__":
+    mcp.run()  # Uses stdio transport by default
+------------------------------------------------------------------------------
+
+Run this example:
+    cd apps/engineer
+    uv run python learn/agent/mcp_agent.py
+"""
+
+
+async def example():
+    """Example: Connect McpAgent to a FastMCP server via stdio."""
+    import tempfile
+    import os
+
+    # Create a temporary MCP server script using stdio transport
+    server_code = '''
+from fastmcp import FastMCP
+
+mcp = FastMCP("Demo Server")
+
+@mcp.tool
+def calculator(operation: str, a: float, b: float) -> str:
+    """Perform basic math operations."""
+    if operation == "add":
+        return f"Result: {a + b}"
+    elif operation == "subtract":
+        return f"Result: {a - b}"
+    elif operation == "multiply":
+        return f"Result: {a * b}"
+    elif operation == "divide":
+        if b == 0:
+            return "Error: Division by zero"
+        return f"Result: {a / b}"
+    return "Error: Unknown operation"
+
+@mcp.tool
+def weather(city: str) -> str:
+    """Get weather for a city."""
+    return f"Weather in {city}: Sunny, 25°C, Humidity: 60%"
+
+if __name__ == "__main__":
+    mcp.run()  # Uses stdio transport by default
+'''
+
+    # Write server script to temp file
+    load_dotenv()
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
+        f.write(server_code)
+        server_path = f.name
+
+    try:
+        print("=" * 50)
+        print("🚀 FastMCP Example (stdio transport)")
+        print("=" * 50)
+
+        # Create McpAgent with stdio transport
+        print("\n1️⃣  Creating McpAgent (stdio transport)...")
+        agent = McpAgent(
+            name="DemoAgent",
+            model=Model(),
+            command="python",
+            args=[server_path],
+        )
+        print("   ✓ Agent created")
+
+        # Test direct tool call
+        print("\n2️⃣  Testing tool calls:")
+        result = await agent._call_mcp_tool("calculator", {"operation": "multiply", "a": 5, "b": 3})
+        print(f"   Calculator (5 × 3): {result}")
+
+        result = await agent._call_mcp_tool("weather", {"city": "Beijing"})
+        print(f"   Weather (Beijing): {result}")
+
+        # Test with LLM if available
+        print("\n3️⃣  Natural language query:")
+        try:
+            print(f"   Query: 'What is 125 multiply 301?'")
+            print(f"   Response: ", end="", flush=True)
+
+            async for chunk in agent.astream("What is 125 multiply 301?"):
+                if chunk.reasoning:
+                    print(chunk.reasoning, end="", flush=True)
+                if chunk.content:
+                    print(chunk.content, end="", flush=True)
+            print()  # Newline after response
+        except Exception as e:
+            print(f"   ⚠️  Skipped: {e}")
+
+        print("\n" + "=" * 50)
+        print("✅ Example completed!")
+        print("=" * 50)
+
+    finally:
+        os.unlink(server_path)
+
+
+if __name__ == "__main__":
+    asyncio.run(example())

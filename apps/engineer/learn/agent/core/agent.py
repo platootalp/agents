@@ -10,7 +10,7 @@ class BaseAgent(ABC):
             name: str,
             description: str = "",
             model: Optional[Model] = None,
-            max_steps: int = 5
+            max_steps: Optional[int] = 50
     ):
         self.name = name
         self.description = description
@@ -24,4 +24,12 @@ class BaseAgent(ABC):
 
     @abstractmethod
     def stream(self, input: str) -> str:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def ainvoke(self, input: str) -> str:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def astream(self, input: str) -> str:
         raise NotImplementedError
