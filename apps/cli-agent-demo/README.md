@@ -5,6 +5,7 @@
 ## 特性
 
 - 🎨 **Rich UI**: 漂亮的终端界面，支持 Markdown 渲染、代码高亮、对话气泡
+- 📺 **Textual TUI**: 全屏 TUI 界面，带侧边栏、键盘快捷键和历史导航
 - 🔧 **工具调用**: 内置多种实用工具（天气、计算、搜索等）
 - 💾 **持久化**: 自动保存对话历史到本地文件
 - 🚀 **异步**: 基于 asyncio 的高性能实现
@@ -46,6 +47,22 @@ cli-agent
 uv run python -m cli_agent.main --session 20240315_143022
 ```
 
+### 启动 TUI 界面
+
+```bash
+# 启动全屏 TUI 界面
+cli-agent tui
+
+# 或加载特定会话
+cli-agent tui --session 20240315_143022
+```
+
+TUI 界面特性:
+- 侧边栏显示可用快捷键
+- 键盘导航: F1帮助, F2新会话, Ctrl+S保存, Ctrl+L清屏, Ctrl+Q退出
+- 上下箭头键浏览输入历史
+- 支持所有聊天命令 (help, clear, new, save, sessions, load, tools)
+
 ### 可用命令
 
 在对话中输入以下命令:
@@ -69,7 +86,9 @@ cli-agent-demo/
 │   │   ├── memory.py   # 持久化存储
 │   │   └── tools.py    # 工具系统
 │   ├── ui/
-│   │   └── console.py  # Rich UI 界面
+│   │   ├── console.py  # Rich UI 界面
+│   │   ├── prompt.py   # 输入处理器
+│   │   └── tui.py      # Textual TUI 界面
 │   ├── tools/
 │   │   └── __init__.py # 默认工具实现
 │   └── main.py         # 主入口
@@ -98,9 +117,11 @@ def get_default_tools() -> list[Tool]:
 
 - `openai>=1.0.0` - OpenAI API 客户端
 - `rich>=13.0.0` - 终端 UI 库
+- `textual>=0.50.0` - TUI 框架
 - `pydantic>=2.0.0` - 数据验证
 - `python-dotenv>=1.0.0` - 环境变量
-- `click>=8.0.0` - CLI 框架
+- `typer>=0.9.0` - CLI 框架
+- `prompt-toolkit>=3.0.0` - 交互式输入
 
 ## License
 

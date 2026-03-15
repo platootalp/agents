@@ -218,10 +218,7 @@ class ChatConsole:
         finally:
             panel.stop()
 
-        # Print final message
-        if full_content.strip():
-            self.print_message("assistant", full_content)
-
+        # Content already displayed during streaming, no need to print again
         return full_content, tool_calls
 
     async def stream_response(

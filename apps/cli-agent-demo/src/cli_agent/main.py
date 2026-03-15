@@ -1,10 +1,13 @@
-"""Main entry point for CLI Agent with multi-turn streaming support."""
+"""Main entry point for CLI Agent with Typer + prompt_toolkit + Rich."""
+
+from __future__ import annotations
 
 import asyncio
 import os
 import sys
+from typing import Annotated
 
-import click
+import typer
 from dotenv import load_dotenv
 
 from cli_agent.core.memory import MemoryManager
@@ -12,16 +15,23 @@ from cli_agent.core.provider import Message, OpenAILLM
 from cli_agent.core.tools import ToolManager
 from cli_agent.tools import get_default_tools
 from cli_agent.ui.console import ChatConsole
+from cli_agent.ui.prompt import PromptHandler
 
-# Load environment variables
 load_dotenv()
+
+app = typer.Typer(
+    name="cli-agent",
+    help="Interactive AI assistant with multi-turn streaming and tool calling",
+    add_completion=False,
+)
 
 
 class CLIAgent:
-    """Interactive CLI Agent with multi-turn streaming support."""
+    """Interactive CLI Agent with Typer + prompt_toolkit + Rich."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.console = ChatConsole()
+        self.prompt = PromptHandler()
         self.memory = MemoryManager()
         self.tools = ToolManager()
         self.llm: OpenAILLM | None = None
@@ -37,11 +47,10 @@ class CLIAgent:
             "5. Summarize progress periodically\n\n"
             "Be proactive in completing tasks while keeping the user informed."
         )
-        self.max_autonomous_turns = 10  # Prevent infinite loops
+        self.max_autonomous_turns = 10
 
     async def initialize(self) -> bool:
         """Initialize the agent. Returns False if setup fails."""
-        # Check for API key
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
             self.console.print_error(
@@ -49,11 +58,9 @@ class CLIAgent:
             )
             return False
 
-        # Initialize LLM
         base_url = os.getenv("OPENAI_BASE_URL")
         self.llm = OpenAILLM(api_key=api_key, base_url=base_url)
 
-        # Register default tools
         default_tools = get_default_tools()
         for tool in default_tools:
             self.tools.register(tool)
@@ -71,14 +78,10 @@ class CLIAgent:
         messages: list[Message],
         is_follow_up: bool = False,
     ) -> tuple[str, list[dict]]:
-        """Stream LLM response and handle any tool calls.
-
-        Returns the final content and any tool calls that were made.
-        """
+        """Stream LLM response and handle any tool calls."""
         if not self.llm:
             raise RuntimeError("LLM not initialized")
 
-        # Stream the response
         generator = self.llm.chat_stream(
             messages=messages,
             tools=self.tools.list_tools(),
@@ -86,7 +89,6 @@ class CLIAgent:
 
         content, tool_calls = await self.console.stream_assistant_response(generator)
 
-        # Add assistant message to memory
         assistant_msg = Message(
             role="assistant",
             content=content if content else None,
@@ -105,17 +107,13 @@ class CLIAgent:
             tool_name = function_data.get("name", "")
             arguments = function_data.get("arguments", "{}")
 
-            # Show tool call
             self.console.print_tool_call(tool_name, arguments)
 
-            # Execute tool
             result = await self.tools.execute_tool_call(tool_call)
 
-            # Show tool result
             result_str = result.to_string()
             self.console.print_message("tool", result_str)
 
-            # Add tool response to memory
             tool_msg = Message(
                 role="tool",
                 content=result_str,
@@ -133,26 +131,24 @@ class CLIAgent:
         tool_calls: list[dict],
         turn_count: int,
     ) -> bool:
-        """Determine if the agent should continue autonomously or wait for user input.
-
-        Returns True if the agent should continue without user input.
-        """
-        # Safety limit
+        """Determine if the agent should continue autonomously."""
         if turn_count >= self.max_autonomous_turns:
             return False
 
-        # If we just made tool calls, we should continue to process results
         if tool_calls:
             return True
 
-        # If content is empty or very short, likely waiting for tool results
         if not content or len(content.strip()) < 10:
             return True
 
-        # Check if the response ends with a question (needs user input)
         content_lower = content.strip().lower()
-        question_indicators = [
-            "?",
+
+        # Check for questions (English and Chinese)
+        if "?" in content or "？" in content:
+            return False
+
+        # Check for question phrases
+        question_phrases = [
             "what would you like",
             "what do you want",
             "please let me know",
@@ -160,19 +156,22 @@ class CLIAgent:
             "could you tell me",
             "i need to know",
             "what is your",
+            "有什么我可以帮",
+            "需要帮助吗",
+            "还需要",
         ]
 
-        for indicator in question_indicators:
-            if content_lower.endswith(indicator) or indicator in content_lower[-100:]:
+        for phrase in question_phrases:
+            if phrase in content_lower:
                 return False
 
-        # If the agent is in the middle of a task (indicated by certain phrases)
+        # Check for continuation indicators
         continuation_indicators = [
             "let me",
-            "i'll",
+            "i'll ",
             "i will",
             "next,",
-            "now i",
+            "now i ",
             "continuing",
             "proceeding",
             "step",
@@ -182,7 +181,7 @@ class CLIAgent:
             if indicator in content_lower[-200:]:
                 return True
 
-        # Default: wait for user input
+        # Default: stop after one response to avoid loops
         return False
 
     async def _process_conversation_turn(
@@ -191,42 +190,27 @@ class CLIAgent:
         is_autonomous: bool = False,
         turn_count: int = 0,
     ) -> bool:
-        """Process a single conversation turn with streaming.
-
-        Args:
-            user_input: User message (None for autonomous continuation)
-            is_autonomous: Whether this is an autonomous continuation
-            turn_count: Current turn count for safety limits
-
-        Returns:
-            True if should continue autonomously, False to wait for user input
-        """
+        """Process a single conversation turn with streaming."""
         if not self.llm:
             self.console.print_error("LLM not initialized")
             return False
 
-        # Add user message if provided
         if user_input:
             user_msg = Message(role="user", content=user_input)
             self.memory.add_message(user_msg)
 
         try:
-            # Build messages and stream response
             messages = self._build_messages()
             content, tool_calls = await self._stream_and_handle_tools(messages)
 
-            # Handle tool calls if any
             if tool_calls:
-                # Execute tools
                 await self._execute_tool_calls(tool_calls)
 
-                # Continue the conversation autonomously to process tool results
                 return await self._process_conversation_turn(
                     is_autonomous=True,
                     turn_count=turn_count + 1,
                 )
 
-            # Decide whether to continue autonomously
             should_continue = await self._should_continue_autonomously(
                 content, tool_calls, turn_count
             )
@@ -243,7 +227,6 @@ class CLIAgent:
         should_continue = True
 
         while should_continue and turn_count < self.max_autonomous_turns:
-            # Process this turn
             should_continue = await self._process_conversation_turn(
                 user_input=user_input if turn_count == 0 else None,
                 is_autonomous=turn_count > 0,
@@ -252,11 +235,9 @@ class CLIAgent:
 
             turn_count += 1
 
-            # If continuing autonomously, add a small delay for readability
             if should_continue and turn_count < self.max_autonomous_turns:
                 await asyncio.sleep(0.5)
 
-        # Save session after conversation
         session = self.memory.get_current_session()
         if session:
             self.memory.save_session(session)
@@ -317,30 +298,25 @@ class CLIAgent:
 
     async def run(self) -> None:
         """Main loop."""
-        # Initialize
         if not await self.initialize():
             sys.exit(1)
 
-        # Create or load session
         if not self.memory.get_current_session():
             self.memory.create_session("New Conversation")
 
-        # Print header
         self.console.print_header()
         session = self.memory.get_current_session()
         self.console.print_info(f"Session: {session.title} ({session.session_id})")
         self.console.print_info(f"Tools available: {len(self.tools.list_tools())}")
         self.console.print_info("Type 'help' for available commands\n")
 
-        # Main loop
         while True:
             try:
-                user_input = self.console.get_input()
+                user_input = await self.prompt.get_input_async()
 
                 if not user_input.strip():
                     continue
 
-                # Check if it's a command
                 if user_input.lower() in (
                     "exit",
                     "quit",
@@ -356,7 +332,6 @@ class CLIAgent:
                     if not await self.handle_command(user_input):
                         break
                 else:
-                    # Regular chat with multi-turn support
                     await self.chat(user_input)
 
             except KeyboardInterrupt:
@@ -365,27 +340,53 @@ class CLIAgent:
                 break
 
 
-@click.command()
-@click.option(
-    "--session",
-    "-s",
-    help="Load a specific session by ID",
-)
-@click.version_option(version="0.1.0")
-def main(session: str | None):
+@app.callback(invoke_without_command=True)
+def default_command(
+    ctx: typer.Context,
+    session: Annotated[
+        str | None,
+        typer.Option("--session", "-s", help="Load a specific session by ID"),
+    ] = None,
+    version: Annotated[
+        bool,
+        typer.Option("--version", "-v", help="Show version and exit"),
+    ] = False,
+) -> None:
     """CLI Agent - Interactive AI assistant with multi-turn streaming and tool calling."""
-    agent = CLIAgent()
+    if version:
+        typer.echo("cli-agent 0.1.0")
+        raise typer.Exit()
 
-    # Load session if specified
-    if session:
-        loaded = agent.memory.load_session(session)
-        if loaded:
-            agent.memory.set_current_session(loaded)
-        else:
-            click.echo(f"Session '{session}' not found. Starting new session.")
+    # Only run main logic if no subcommand was invoked
+    if ctx.invoked_subcommand is None:
+        agent = CLIAgent()
 
-    # Run the agent
-    asyncio.run(agent.run())
+        if session:
+            loaded = agent.memory.load_session(session)
+            if loaded:
+                agent.memory.set_current_session(loaded)
+            else:
+                typer.echo(f"Session '{session}' not found. Starting new session.")
+
+        asyncio.run(agent.run())
+
+
+@app.command()
+def tui(
+    session: Annotated[
+        str | None,
+        typer.Option("--session", "-s", help="Load a specific session by ID"),
+    ] = None,
+) -> None:
+    """Launch the Textual TUI interface."""
+    from cli_agent.ui.tui import run_tui
+
+    run_tui(session_id=session)
+
+
+def main() -> None:
+    """Entry point for the CLI."""
+    app()
 
 
 if __name__ == "__main__":
