@@ -1,16 +1,19 @@
 from abc import ABC, abstractmethod
 from typing import Callable, List, Optional, Dict, Any
 
-from apps.engineer.learn.agent.core.model import Model
+try:
+    from apps.engineer.learn.agent.core.model import Model
+except ImportError:
+    from learn.agent.core.model import Model
 
 
 class BaseAgent(ABC):
     def __init__(
-            self,
-            name: str,
-            description: str = "",
-            model: Optional[Model] = None,
-            max_steps: Optional[int] = 50
+        self,
+        name: str,
+        description: str = "",
+        model: Optional[Model] = None,
+        max_steps: Optional[int] = 50,
     ):
         self.name = name
         self.description = description

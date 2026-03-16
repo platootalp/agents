@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from typing import Any
 
 from textual.app import App, ComposeResult
@@ -200,6 +201,23 @@ class CommandInput(Input):
         self.history_index = -1
         self.current_input = ""
 
+    def on_key(self, event) -> None:
+        """Handle key events - capture Enter to submit."""
+        if event.key == "enter":
+            value = self.value.strip()
+            if value:
+                self.add_to_history(value)
+                # Don't clear here - let the app handle it
+                self.post_message(self.Submitted(value))
+                self.value = ""
+
+    class Submitted(TextualMessage):
+        """Message emitted when input is submitted."""
+
+        def __init__(self, value: str) -> None:
+            self.value = value
+            super().__init__()
+
 
 class CLIAgentTUI(App):
     """Textual TUI for CLI Agent."""
@@ -300,6 +318,10 @@ class CLIAgentTUI(App):
             "- F1 for help\n- F2 for new session\n- Ctrl+Q to quit",
         )
 
+        # Focus the input widget
+        input_widget = self.query_one("#command-input", CommandInput)
+        input_widget.focus()
+
     async def initialize(self) -> bool:
         """Initialize the agent."""
         import os
@@ -328,15 +350,12 @@ class CLIAgentTUI(App):
         messages.extend(self.memory.get_messages())
         return messages
 
-    async def on_input_submitted(self, event: Input.Submitted) -> None:
-        """Handle user input."""
+    def on_command_input_submitted(self, event: CommandInput.Submitted) -> None:
+        """Handle user input from CommandInput widget."""
         value = event.value.strip()
+
         if not value:
             return
-
-        # Add to history
-        input_widget = self.query_one("#command-input", CommandInput)
-        input_widget.add_to_history(value)
 
         # Handle commands
         if value.lower() in ("exit", "quit", "q"):
@@ -395,8 +414,8 @@ class CLIAgentTUI(App):
             self.query_one("#chat-history", ChatHistory).add_message("system", msg)
             return
 
-        # Regular chat
-        await self._handle_chat(value)
+        # Regular chat - run async handler
+        self.run_worker(self._handle_chat(value))
 
     async def _handle_chat(self, user_input: str) -> None:
         """Handle chat conversation."""
@@ -448,8 +467,6 @@ class CLIAgentTUI(App):
                 elif current_tool and not chunk.startswith("__"):
                     current_tool["function"]["arguments"] += chunk
                     try:
-                        import json
-
                         json.loads(current_tool["function"]["arguments"])
                         tool_calls.append(current_tool)
                         current_tool = None

@@ -1,24 +1,80 @@
-"""McpAgent - An agent that connects to MCP servers using FastMCP.
+"""
+McpAgent - MCP (Model Context Protocol) Agent
 
-This module provides McpAgent which connects to MCP servers using the FastMCP
-library (PrefectHQ/fastmcp) - a simplified, Pythonic MCP implementation.
+架构设计:
+=========
 
-Install: uv add fastmcp
+继承关系:
+    ToolUseAgent (01.tool_use_agent.py)
+        ↓ 继承
+    McpAgent (当前文件)
+
+MCP协议支持:
+    McpAgent 通过 FastMCP 客户端连接到 MCP 服务器，支持两种传输方式:
+    1. StdioTransport: 通过子进程标准输入输出通信 (最可靠)
+    2. HTTP Transport: 通过HTTP连接到远程MCP服务器
+
+核心组件:
+    1. FastMCP Client (fastmcp.Client)
+       - 连接MCP服务器
+       - 列出可用工具
+       - 调用远程工具
+
+    2. MessageBuilder (来自 core/utils.py)
+       - 构建包含MCP工具信息的系统提示
+       - 转换MCP工具格式为OpenAI工具格式
+
+    3. ToolCallResult (来自 core/utils.py)
+       - 统一工具调用结果格式
+
+    4. ConversationMixin (继承自 ToolUseAgent)
+       - 复用标准对话循环
+
+数据流:
+    1. 初始化: McpAgent → 创建 FastMCP Client → 连接服务器 → 获取工具列表
+    2. 调用: User Input → ToolUseAgent.invoke() → MCP工具调用 → 返回结果
+
+关键方法:
+    _build_system_prompt(): 构建包含MCP服务器工具信息的系统提示
+    _convert_mcp_tools(): 将MCP工具格式转换为OpenAI工具格式
+    _call_mcp_tool(): 调用MCP服务器上的工具
+
+依赖:
+    - fastmcp: MCP协议客户端库
+    - ToolUseAgent: 基础工具使用Agent
+    - MessageBuilder: 消息构建工具
+
+使用场景:
+    - 连接外部MCP服务器获取工具能力
+    - 集成远程服务（如文件系统、数据库、API等）
+    - 构建可扩展的工具生态系统
 """
 
 import asyncio
 import json
-import re
-import time
 from typing import Optional, List, Dict, Any, AsyncIterator
 from dataclasses import dataclass, field
 
 from dotenv import load_dotenv
-from fastmcp.client import SSETransport
 
-from apps.engineer.learn.agent.core.model import Model
-from apps.engineer.learn.agent.core.tool import Tool
-from apps.engineer.learn.agent.tool_use_agent import ToolUseAgent
+try:
+    from apps.engineer.learn.agent.core.model import Model
+    from apps.engineer.learn.agent.core.tool import Tool
+    from apps.engineer.learn.agent.tool_use_agent import ToolUseAgent
+    from apps.engineer.learn.agent.core.utils import (
+        ToolCallResult,
+        MessageBuilder,
+        ConversationMixin,
+    )
+except ImportError:
+    from learn.agent.core.model import Model
+    from learn.agent.core.tool import Tool
+    from learn.agent.tool_use_agent import ToolUseAgent
+    from learn.agent.core.utils import (
+        ToolCallResult,
+        MessageBuilder,
+        ConversationMixin,
+    )
 
 try:
     from fastmcp import Client
@@ -39,26 +95,38 @@ class StreamChunk:
     is_complete: bool = False
 
 
-@dataclass
-class ToolCallResult:
-    """Result of a tool call execution."""
-
-    tool_call_id: str
-    tool_name: str
-    result: str
-    elapsed_ms: float
-    args: str = ""  # JSON string of arguments for display
-
-
 class McpAgent(ToolUseAgent):
-    """An agent that connects to MCP servers and uses their tools via FastMCP.
+    """
+    MCP协议Agent - 连接MCP服务器并使用远程工具
 
-    This agent extends ToolUseAgent to support MCP protocol using FastMCP's
-    simplified Client API.
+    继承自 ToolUseAgent，添加MCP协议支持:
+        - 连接MCP服务器 (stdio 或 HTTP)
+        - 动态获取服务器工具列表
+        - 调用远程MCP工具
+        - 复用 ToolUseAgent 的对话循环
 
-    Example:
+    传输方式:
+        1. StdioTransport (推荐): 通过子进程通信
+           - 最可靠，支持所有MCP功能
+           - 使用 command + args 参数
+
+        2. HTTP Transport: 连接远程HTTP服务器
+           - 适合云服务部署
+           - 使用 server_url 参数
+
+    工具集成:
+        - 连接时自动从服务器获取工具列表
+        - 转换为OpenAI工具格式供LLM使用
+        - 工具调用自动路由到MCP服务器
+
+    关键方法:
+        __init__(): 配置传输方式，连接服务器
+        _build_system_prompt(): 构建包含MCP工具的系统提示
+        _call_mcp_tool(): 调用MCP服务器的工具
+
+    示例:
         ```python
-        # Stdio transport (default, most reliable)
+        # Stdio transport (本地Python脚本作为MCP服务器)
         agent = McpAgent(
             name="MCP Agent",
             model=Model(),
@@ -66,25 +134,12 @@ class McpAgent(ToolUseAgent):
             args=["mcp_server.py"],
         )
 
-        # Or HTTP transport
+        # HTTP transport (远程MCP服务)
         agent = McpAgent(
             name="MCP Agent",
             model=Model(),
             server_url="http://localhost:8000/mcp",
         )
-
-        # Synchronous usage
-        result = agent.invoke("What can you help me with?")
-
-        # Streaming usage
-        result = agent.stream("Tell me a story")
-
-        # Async usage
-        result = await agent.ainvoke("What can you help me with?")
-
-        # Async streaming
-        async for chunk in agent.astream("Tell me a story"):
-            print(chunk.content, end="")
         ```
     """
 
@@ -323,6 +378,8 @@ class McpAgent(ToolUseAgent):
         Returns:
             ToolCallResult with execution details
         """
+        import time
+
         tool_name = tool_call["function"]["name"]
         tool_id = tool_call["id"]
 
@@ -365,198 +422,6 @@ class McpAgent(ToolUseAgent):
             results.append(result)
         return results
 
-    def _format_tool_args(self, args: str) -> str:
-        """Format tool arguments for display.
-
-        Args:
-            args: JSON string of arguments
-
-        Returns:
-            Formatted string
-        """
-        if args:
-            try:
-                return json.dumps(json.loads(args), indent=4)
-            except:
-                return args
-        return ""
-
-    def _print_tool_execution(self, result: ToolCallResult, index: int = 0) -> None:
-        """Print tool execution details.
-
-        Args:
-            result: ToolCallResult to display
-            index: Optional index for display
-        """
-        prefix = f"  [{index}] " if index > 0 else "  "
-        print(f"{prefix}{result.tool_name}")
-
-        # Try to format arguments if available
-        if result.args:
-            args_pretty = self._format_tool_args(result.args)
-            if args_pretty:
-                print(f"      Args: {args_pretty}")
-
-        print(f"      Executing...", end="", flush=True)
-        print(f" ✓ Done ({result.elapsed_ms:.0f}ms)")
-
-        result_display = result.result[:300] + "..." if len(result.result) > 300 else result.result
-        print(f"      Result: {result_display}")
-
-    def _convert_api_tool_calls(self, api_tool_calls: Optional[List[Any]]) -> List[Dict[str, Any]]:
-        """Convert API tool call objects to dict format.
-
-        Args:
-            api_tool_calls: List of tool call objects from API response
-
-        Returns:
-            List of tool call dicts
-        """
-        if not api_tool_calls:
-            return []
-        return [
-            {
-                "id": tc.id,
-                "type": tc.type,
-                "function": {
-                    "name": tc.function.name,
-                    "arguments": tc.function.arguments,
-                },
-            }
-            for tc in api_tool_calls
-        ]
-
-    def _parse_tool_calls_from_content(self, content: Optional[str]) -> List[Dict[str, Any]]:
-        """Parse tool calls from content when LLM outputs them in text format.
-
-        Some models output tool calls in content field like:
-        'functions.weather:0 {"city": "Beijing"}'
-        or '<function_calls>...</function_calls>'
-
-        Args:
-            content: The content string to parse
-
-        Returns:
-            List of parsed tool call dicts
-        """
-        if not content:
-            return []
-
-        tool_calls = []
-
-        # Pattern 1: functions.name:index {json_args}
-        # Example: functions.weather:0 {"city": "Beijing"}
-        # Also handles: functions.resolve-library-id:0 <marker> {"libraryName": "..."} <marker>
-        pattern1 = r"functions\.([\w\-]+):(\d+)\s*[\s\S]*?(\{[\s\S]*?\})"
-        for match in re.finditer(pattern1, content):
-            name = match.group(1)
-            index = match.group(2)
-            args_str = match.group(3)
-            try:
-                args = json.loads(args_str)
-                tool_calls.append(
-                    {
-                        "id": f"call_{index}",
-                        "type": "function",
-                        "function": {
-                            "name": name,
-                            "arguments": args if isinstance(args, str) else json.dumps(args),
-                        },
-                    }
-                )
-            except json.JSONDecodeError:
-                continue
-
-        # Pattern 2: <function_calls> XML format
-        # Example: <function_calls><invoke name="weather"><parameter name="city">Beijing</parameter></invoke></function_calls>
-        if not tool_calls:
-            func_calls_pattern = r"<function_calls>.*?</function_calls>"
-            func_calls_match = re.search(func_calls_pattern, content, re.DOTALL)
-            if func_calls_match:
-                invoke_pattern = r'<invoke name="(\w+)">(.*?)</invoke>'
-                for invoke_match in re.finditer(
-                    invoke_pattern, func_calls_match.group(0), re.DOTALL
-                ):
-                    name = invoke_match.group(1)
-                    params_str = invoke_match.group(2)
-                    # Parse parameters
-                    params = {}
-                    param_pattern = r'<parameter name="(\w+)">(.*?)</parameter>'
-                    for param_match in re.finditer(param_pattern, params_str, re.DOTALL):
-                        params[param_match.group(1)] = param_match.group(2)
-                    tool_calls.append(
-                        {
-                            "id": f"call_parsed_{len(tool_calls)}",
-                            "type": "function",
-                            "function": {
-                                "name": name,
-                                "arguments": json.dumps(params),
-                            },
-                        }
-                    )
-
-        return tool_calls
-
-    def _build_assistant_message(
-        self, content: str, tool_calls: Optional[List[Dict[str, Any]]] = None
-    ) -> Dict[str, Any]:
-        """Build an assistant message for conversation history.
-
-        Args:
-            content: Message content
-            tool_calls: Optional list of tool calls
-
-        Returns:
-            Assistant message dict
-        """
-        msg: Dict[str, Any] = {"role": "assistant", "content": content}
-        if tool_calls:
-            msg["tool_calls"] = tool_calls
-        return msg
-
-    def _build_tool_response_message(self, tool_call_id: str, content: str) -> Dict[str, Any]:
-        """Build a tool response message for conversation history.
-
-        Args:
-            tool_call_id: ID of the tool call
-            content: Response content
-
-        Returns:
-            Tool response message dict
-        """
-        return {
-            "role": "tool",
-            "tool_call_id": tool_call_id,
-            "content": str(content),
-        }
-
-    def _accumulate_tool_calls(self, tool_call_deltas: List[Any]) -> Dict[int, Dict[str, Any]]:
-        """Accumulate tool call deltas into complete tool call objects.
-
-        Args:
-            tool_call_deltas: List of tool call delta objects from streaming
-
-        Returns:
-            Dictionary mapping index to accumulated tool call dict
-        """
-        accumulated: Dict[int, Dict[str, Any]] = {}
-        for tc_delta in tool_call_deltas:
-            index = tc_delta.index
-            if index not in accumulated:
-                accumulated[index] = {
-                    "id": tc_delta.id or "",
-                    "type": "function",
-                    "function": {"name": "", "arguments": ""},
-                }
-            if tc_delta.id:
-                accumulated[index]["id"] = tc_delta.id
-            if tc_delta.function:
-                if tc_delta.function.name:
-                    accumulated[index]["function"]["name"] = tc_delta.function.name
-                if tc_delta.function.arguments:
-                    accumulated[index]["function"]["arguments"] += tc_delta.function.arguments
-        return accumulated
-
     def _ensure_sync_context(self, method_name: str) -> None:
         """Ensure we're not in an async context for sync methods.
 
@@ -591,18 +456,6 @@ class McpAgent(ToolUseAgent):
             return "No model configured."
         return None
 
-    def _init_conversation(self, input: str, reset: bool = False) -> None:
-        """Initialize conversation history.
-
-        Args:
-            input: User input
-            reset: Whether to force reset the conversation
-        """
-        if reset or not hasattr(self, "message_history") or not self.message_history:
-            self.message_history = [
-                {"role": "system", "content": self._build_system_prompt()},
-            ]
-
     # =========================================================================
     # Conversation Loop Core
     # =========================================================================
@@ -627,8 +480,9 @@ class McpAgent(ToolUseAgent):
             await self.connect()
 
         all_tools = await self._get_all_tools()
-        self._init_conversation(input)
-        self.message_history.append({"role": "user", "content": input})
+
+        # Initialize conversation using shared mixin method
+        ConversationMixin._init_conversation(self, input, self._build_system_prompt())
 
         for step in range(self.max_steps):
             if streaming:
@@ -653,7 +507,7 @@ class McpAgent(ToolUseAgent):
         Returns:
             Final response if done, None to continue
         """
-        final_content = ""
+        accumulated_content = ""
         accumulated_tool_calls: Dict[int, Dict[str, Any]] = {}
 
         stream = self.model.stream(self.message_history, tools=all_tools or None)
@@ -665,24 +519,19 @@ class McpAgent(ToolUseAgent):
             delta = chunk.choices[0].delta
 
             if delta.content:
-                final_content += delta.content
+                accumulated_content += delta.content
                 if print_output:
                     print(delta.content, end="", flush=True)
 
             if delta.tool_calls:
-                accumulated_tool_calls.update(self._accumulate_tool_calls(delta.tool_calls))
+                accumulated_tool_calls.update(
+                    MessageBuilder.accumulate_tool_calls(delta.tool_calls)
+                )
 
         tool_calls_list = list(accumulated_tool_calls.values())
 
-        # If no tool_calls from API, try parsing from content
-        if not tool_calls_list and final_content:
-            parsed_calls = self._parse_tool_calls_from_content(final_content)
-            if parsed_calls:
-                tool_calls_list = parsed_calls
-                if print_output:
-                    print(f"\n[Parsed {len(tool_calls_list)} tool calls from content]")
-
-        assistant_msg = self._build_assistant_message(final_content, tool_calls_list)
+        # Build assistant message using shared MessageBuilder
+        assistant_msg = MessageBuilder.build_assistant_message(accumulated_content, tool_calls_list)
         self.message_history.append(assistant_msg)
 
         # Execute tools if any, otherwise return final answer
@@ -690,7 +539,7 @@ class McpAgent(ToolUseAgent):
             await self._execute_and_record_tools(tool_calls_list, print_output)
             return None
 
-        return final_content.strip() if final_content else ""
+        return accumulated_content.strip() if accumulated_content else ""
 
     async def _run_non_streaming_step(self, all_tools: List[Dict[str, Any]]) -> Optional[str]:
         """Run one step of the conversation in non-streaming mode.
@@ -704,15 +553,10 @@ class McpAgent(ToolUseAgent):
         response = self.model.generate(self.message_history, tools=all_tools or None)
         message = response.choices[0].message
 
-        tool_calls = self._convert_api_tool_calls(message.tool_calls)
+        tool_calls = MessageBuilder.convert_api_tool_calls(message.tool_calls)
 
-        # If no tool_calls from API, try parsing from content
-        if not tool_calls and message.content:
-            parsed_calls = self._parse_tool_calls_from_content(message.content)
-            if parsed_calls:
-                tool_calls = parsed_calls
-
-        assistant_msg = self._build_assistant_message(message.content or "", tool_calls)
+        # Build assistant message using shared MessageBuilder
+        assistant_msg = MessageBuilder.build_assistant_message(message.content or "", tool_calls)
         self.message_history.append(assistant_msg)
 
         # Execute tools if any, otherwise return final answer
@@ -743,7 +587,10 @@ class McpAgent(ToolUseAgent):
             if print_output:
                 self._print_tool_execution(result, i)
 
-            tool_msg = self._build_tool_response_message(result.tool_call_id, result.result)
+            # Use shared MessageBuilder for tool response
+            tool_msg = MessageBuilder.build_tool_response_message(
+                result.tool_call_id, result.result
+            )
             self.message_history.append(tool_msg)
 
         if print_output:
@@ -799,12 +646,13 @@ class McpAgent(ToolUseAgent):
             return error
 
         self._ensure_sync_context("stream")
-        self._init_conversation(input, reset)
 
-        if reset or not self.message_history[1:]:
+        # Initialize conversation using shared mixin method
+        ConversationMixin._init_conversation(self, input, self._build_system_prompt(), reset)
+
+        if reset or len(self.message_history) <= 2:
             print("\n🆕 New Conversation\n")
 
-        self.message_history.append({"role": "user", "content": input})
         print(f"👤 User: {input}\n")
 
         return asyncio.run(self._run_conversation_loop(input, streaming=True, print_output=True))
@@ -823,8 +671,8 @@ class McpAgent(ToolUseAgent):
             yield StreamChunk(content=error, is_complete=True)
             return
 
-        self._init_conversation(input, reset)
-        self.message_history.append({"role": "user", "content": input})
+        # Initialize conversation using shared mixin method
+        ConversationMixin._init_conversation(self, input, self._build_system_prompt(), reset)
 
         if not self._connected:
             await self.connect()
@@ -886,17 +734,14 @@ class McpAgent(ToolUseAgent):
                 yield StreamChunk(reasoning=delta.reasoning_content)
 
             if delta.tool_calls:
-                accumulated_tool_calls.update(self._accumulate_tool_calls(delta.tool_calls))
+                accumulated_tool_calls.update(
+                    MessageBuilder.accumulate_tool_calls(delta.tool_calls)
+                )
 
         tool_calls_list = list(accumulated_tool_calls.values())
 
-        # If no tool_calls from API, try parsing from content
-        if not tool_calls_list and accumulated_content:
-            parsed_calls = self._parse_tool_calls_from_content(accumulated_content)
-            if parsed_calls:
-                tool_calls_list = parsed_calls
-
-        assistant_msg = self._build_assistant_message(accumulated_content, tool_calls_list)
+        # Build assistant message using shared MessageBuilder
+        assistant_msg = MessageBuilder.build_assistant_message(accumulated_content, tool_calls_list)
         self.message_history.append(assistant_msg)
 
     async def _astream_tool_results(
@@ -923,7 +768,10 @@ class McpAgent(ToolUseAgent):
                 ]
             )
 
-            tool_msg = self._build_tool_response_message(result.tool_call_id, result.result)
+            # Use shared MessageBuilder for tool response
+            tool_msg = MessageBuilder.build_tool_response_message(
+                result.tool_call_id, result.result
+            )
             self.message_history.append(tool_msg)
 
 
@@ -965,7 +813,7 @@ if __name__ == "__main__":
 
 Run this example:
     cd apps/engineer
-    uv run python learn/agent/mcp_agent.py
+    uv run python learn/agent/03.mcp_agent.py
 """
 
 

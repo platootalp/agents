@@ -1,30 +1,102 @@
 """
-Skill系统
+Skill系统 - 模块化技能管理Agent
 
-架构原则：
-1. SkillRepository: 纯数据存储（CRUD）
-2. SkillToolSet: 所有工具操作的集合
-3. SkillUseAgent: 薄代理层，只负责LLM交互
+架构设计:
+=========
 
-核心流程：
-# 1. 用户输入 -> SkillUseAgent.invoke()
-# 2. Agent构建system_prompt（包含可用skill列表）
-# 3. LLM决定调用工具 -> SkillToolSet.execute_tool()
-# 4. 工具操作文件系统 -> 返回结果
-# 5. LLM生成最终回答
+分层架构 (Clean Architecture):
+
+    Domain层 (Skills)
+        ↓ 被Repository依赖
+    Repository层 (SkillsRepository)
+        ↓ 被ToolSet依赖
+    Tool层 (SkillToolSet)
+        ↓ 被Agent依赖
+    Agent层 (SkillsUseAgent)
+
+组件职责:
+    1. Skills (Domain)
+       - 纯数据实体，包含name, description, base_path, metadata
+       - 提供 get_summary() 方法生成描述
+       - 无业务逻辑，仅数据结构
+
+    2. SkillsRepository (Repository)
+       - 纯数据存储和检索（CRUD）
+       - 管理Skill对象的生命周期
+       - 从文件系统加载Skill
+       - 无业务逻辑，仅数据访问
+
+    3. SkillToolSet (Tool层)
+       - 所有Skill操作的集合
+       - 将业务操作封装为工具函数
+       - 供LLM调用的工具实现
+       - 包含：load_skill, query_skill, list_skills等
+
+    4. SkillsUseAgent (Agent层)
+       - 薄代理层，只负责LLM交互
+       - 继承 ToolUseAgent 复用对话循环
+       - 使用 ToolExecutorMixin 复用工具执行
+       - 构建包含可用Skill列表的系统提示
+
+共享组件使用:
+    - MessageBuilder: 构建system/user/assistant/tool消息
+    - ToolExecutorMixin: 提供工具执行和格式化功能
+    - ToolUseAgent: 提供对话循环和Agent基础功能
+
+设计模式:
+    - 分层架构: Domain → Repository → Tool → Agent
+    - 依赖倒置: 高层不依赖低层，都依赖抽象
+    - 单一职责: 每个类只做一件事
+    - 组合优于继承: SkillUseAgent组合SkillToolSet
+
+工作流程:
+    User Input → SkillsUseAgent.invoke()
+                      ↓
+              _build_system_prompt() (包含可用skill列表)
+                      ↓
+              LLM 生成 Tool Call
+                      ↓
+              SkillToolSet.execute_tool() (调用具体skill工具)
+                      ↓
+              SkillRepository.get() / 文件系统操作
+                      ↓
+              返回结果 → LLM 生成最终回答
+
+扩展指南:
+    添加新Skill:
+        1. 在skills/目录下创建skill目录
+        2. 添加SKILL.md和references/
+        3. SkillsUseAgent自动发现并加载
+
+    添加新工具:
+        1. 在SkillToolSet中添加新方法
+        2. 方法自动注册为可用工具
+        3. 更新系统提示描述新工具
 """
 
 import json
-import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import List, Optional, Dict, Any, Union, Callable
 
 from dotenv import load_dotenv
 
-from apps.engineer.learn.agent.core.model import Model
-from apps.engineer.learn.agent.core.tool import Tool
-from apps.engineer.learn.agent.tool_use_agent import ToolUseAgent
+try:
+    from apps.engineer.learn.agent.core.model import Model
+    from apps.engineer.learn.agent.core.tool import Tool
+    from apps.engineer.learn.agent.tool_use_agent import ToolUseAgent
+    from apps.engineer.learn.agent.core.utils import (
+        MessageBuilder,
+        ToolExecutorMixin,
+    )
+except ImportError:
+    from learn.agent.core.model import Model
+    from learn.agent.core.tool import Tool
+    from learn.agent.tool_use_agent import ToolUseAgent
+    from learn.agent.core.utils import (
+        MessageBuilder,
+        ToolExecutorMixin,
+    )
 
 
 # ============================================================================
@@ -375,14 +447,47 @@ class SkillsToolSet:
 
 class SkillsUseAgent(ToolUseAgent):
     """
-    Skill使用代理
+    Skill使用代理 - 薄代理层，负责LLM交互和Skill管理
 
-    职责：
-    1. 构建system_prompt（包含可用skill信息）
-    2. 协调LLM调用和工具执行
-    3. 维护对话历史
+    架构位置:
+        继承 ToolUseAgent → 复用对话循环和工具执行
+        组合 SkillToolSet → 委托所有工具操作
+        使用 SkillsRepository → 管理Skill数据存储
 
-    注：所有工具逻辑委托给SkillToolSet
+    核心职责:
+        1. LLM交互: 构建系统提示、处理对话、生成回答
+        2. Skill发现: 从文件系统自动加载和管理Skill
+        3. 工具协调: 将LLM的工具调用委托给SkillToolSet执行
+
+    组件协作:
+        SkillsUseAgent (Agent层)
+            ↓ 组合
+        SkillToolSet (Tool层)
+            ↓ 依赖
+        SkillsRepository (Repository层)
+            ↓ 管理
+        Skills (Domain层)
+
+    共享组件:
+        - ToolUseAgent: 提供 invoke/stream 接口和对话循环
+        - ToolExecutorMixin: 提供工具执行和参数格式化
+        - MessageBuilder: 构建包含Skill列表的系统提示
+
+    关键方法:
+        __init__(): 初始化repository和toolset，加载skills
+        _build_system_prompt(): 构建包含可用Skill信息的系统提示
+        discover_skills(): 从目录发现和加载新Skill
+        get_loaded_skills(): 获取已加载的Skill列表
+
+    工作流程:
+        1. 初始化: 创建repository → 创建toolset → 从目录加载skills
+        2. 调用: invoke() → _build_system_prompt() → LLM → 工具调用
+        3. 执行: SkillToolSet.execute_tool() → 具体操作Skill
+        4. 返回: 工具结果 → LLM → 最终回答
+
+    扩展方式:
+        - 添加新Skill: 在skills/目录创建新目录，自动发现
+        - 自定义行为: 重写 _build_system_prompt() 修改系统提示
     """
 
     def __init__(
@@ -391,7 +496,7 @@ class SkillsUseAgent(ToolUseAgent):
         description: str = "",
         model: Optional[Model] = None,
         tools: Optional[List[Tool]] = None,
-        skills_dir: Optional[Path] = Path(__file__).parent / "skills",
+        skills_dir: Optional[Path] = None,
         skills_repository: Optional[SkillsRepository] = None,
         max_steps: int = 10,
     ):
@@ -401,6 +506,10 @@ class SkillsUseAgent(ToolUseAgent):
         # 初始化repository和toolset
         self.repository = skills_repository or SkillsRepository()
         self.toolset: Optional[SkillsToolSet] = None
+
+        # 设置默认skill目录
+        if skills_dir is None:
+            skills_dir = Path(__file__).parent / "skills"
 
         if skills_dir.exists():
             count = self._setup_skills(skills_dir)
@@ -457,21 +566,16 @@ class SkillsUseAgent(ToolUseAgent):
         """
         执行用户请求
 
-        流程：
-        # 1. 检查model配置
-        # 2. 初始化消息历史
-        # 3. 循环直到完成或达到最大步数
-        #    a. 调用LLM生成回复
-        #    b. 如果有工具调用，执行工具并继续
-        #    c. 如果有回复内容，返回结果
+        使用父类的对话循环，但工具执行通过toolset
         """
         if not self.model:
             return "No model configured."
 
-        self.message_history = [
-            {"role": "system", "content": self._build_system_prompt()},
-            {"role": "user", "content": input},
-        ]
+        if not self.toolset:
+            return "Skill toolset not initialized."
+
+        # 使用父类的对话循环，但自定义工具执行
+        self._init_conversation(input, self._build_system_prompt(), reset=True)
 
         for step in range(self.max_steps):
             # 获取工具定义（OpenAI格式）
@@ -481,77 +585,52 @@ class SkillsUseAgent(ToolUseAgent):
             response = self.model.generate(self.message_history, tools=openai_tools)
             message = response.choices[0].message
 
-            # 添加到历史
-            assistant_msg: Dict[str, Any] = {"role": "assistant", "content": message.content or ""}
-            if message.tool_calls:
-                assistant_msg["tool_calls"] = [
-                    {
-                        "id": tc.id,
-                        "type": tc.type,
-                        "function": {"name": tc.function.name, "arguments": tc.function.arguments},
-                    }
-                    for tc in message.tool_calls
-                ]
+            # 使用MessageBuilder构建助手消息
+            tool_calls = MessageBuilder.convert_api_tool_calls(message.tool_calls)
+            assistant_msg = MessageBuilder.build_assistant_message(
+                message.content or "", tool_calls
+            )
             self.message_history.append(assistant_msg)
 
             # 如果没有工具调用，返回回复内容
-            if not message.tool_calls:
+            if not tool_calls:
                 if message.content:
                     return message.content.strip()
                 continue
 
-            # 执行工具调用
-            for tool_call in message.tool_calls:
-                tool_name = tool_call.function.name
-                args = tool_call.function.arguments
+            # 执行工具调用（通过toolset）
+            for tool_call in tool_calls:
+                tool_name = tool_call["function"]["name"]
+                args = tool_call["function"]["arguments"]
 
                 # 使用toolset执行工具
-                if self.toolset:
-                    tool_result = self.toolset.execute_tool(tool_name, args)
-                else:
-                    tool_result = "Skill toolset not initialized."
+                tool_result = self.toolset.execute_tool(tool_name, args)
 
-                self.message_history.append(
-                    {
-                        "role": "tool",
-                        "tool_call_id": tool_call.id,
-                        "content": str(tool_result),
-                    }
+                # 使用MessageBuilder构建工具响应
+                tool_msg = MessageBuilder.build_tool_response_message(
+                    tool_call["id"], str(tool_result)
                 )
+                self.message_history.append(tool_msg)
 
         return "Reached maximum steps without a final answer."
 
     def stream(self, input: str, reset: bool = False) -> str:
         """
         Stream the response from the model, printing chunks as they arrive.
-        Supports multi-turn conversation by maintaining message history.
-
-        Args:
-            input: User input message
-            reset: If True, reset conversation history before processing
-
-        Flow:
-        # 1. Check model configuration
-        # 2. Initialize or append to message history
-        # 3. Loop until complete or max steps reached
-        #    a. Stream LLM response chunk by chunk
-        #    b. Print content chunks as they arrive
-        #    c. Accumulate tool calls from chunks
-        #    d. If tool calls found, execute them and continue
-        #    e. If no tool calls, return accumulated content
+        使用共享组件简化实现。
         """
         if not self.model:
             return "No model configured."
 
+        if not self.toolset:
+            return "Skill toolset not initialized."
+
         # Reset or initialize history
-        if reset or not hasattr(self, "message_history") or not self.message_history:
-            self.message_history = [
-                {"role": "system", "content": self._build_system_prompt()},
-            ]
+        self._init_conversation(input, self._build_system_prompt(), reset)
+
+        if reset or len(self.message_history) <= 2:
             print("\n🆕 New Conversation\n")
 
-        # Append user message
-        self.message_history.append({"role": "user", "content": input})
         print(f"👤 User: {input}\n")
 
         for step in range(self.max_steps):
@@ -563,7 +642,6 @@ class SkillsUseAgent(ToolUseAgent):
 
             # Accumulate content and tool calls from chunks
             accumulated_content = ""
-            accumulated_reasoning = ""
             accumulated_tool_calls: Dict[int, Dict[str, Any]] = {}
 
             # Track what we're currently printing to avoid mixing outputs
@@ -577,13 +655,12 @@ class SkillsUseAgent(ToolUseAgent):
                 delta = chunk.choices[0].delta
 
                 # Handle reasoning/thinking content
-                if delta.reasoning_content:
+                if hasattr(delta, "reasoning_content") and delta.reasoning_content:
                     if not in_thinking:
                         print("\n💭 Thinking:\n", end="", flush=True)
                         in_thinking = True
                         in_content = False
                     print(delta.reasoning_content, end="", flush=True)
-                    accumulated_reasoning += delta.reasoning_content
 
                 # Handle content chunks
                 if delta.content:
@@ -596,35 +673,16 @@ class SkillsUseAgent(ToolUseAgent):
 
                 # Handle tool call chunks
                 if delta.tool_calls:
-                    for tc_delta in delta.tool_calls:
-                        index = tc_delta.index
-
-                        if index not in accumulated_tool_calls:
-                            accumulated_tool_calls[index] = {
-                                "id": tc_delta.id or "",
-                                "type": "function",
-                                "function": {"name": "", "arguments": ""},
-                            }
-
-                        if tc_delta.id:
-                            accumulated_tool_calls[index]["id"] = tc_delta.id
-                        if tc_delta.function:
-                            if tc_delta.function.name:
-                                accumulated_tool_calls[index]["function"]["name"] = (
-                                    tc_delta.function.name
-                                )
-                            if tc_delta.function.arguments:
-                                accumulated_tool_calls[index]["function"]["arguments"] += (
-                                    tc_delta.function.arguments
-                                )
+                    accumulated_tool_calls.update(
+                        MessageBuilder.accumulate_tool_calls(delta.tool_calls)
+                    )
 
             tool_calls_list = list(accumulated_tool_calls.values())
 
-            # Build assistant message for history
-            assistant_msg: Dict[str, Any] = {"role": "assistant", "content": accumulated_content}
-            if tool_calls_list:
-                assistant_msg["tool_calls"] = tool_calls_list
-
+            # Build assistant message for history using MessageBuilder
+            assistant_msg = MessageBuilder.build_assistant_message(
+                accumulated_content, tool_calls_list
+            )
             self.message_history.append(assistant_msg)
 
             # If no tool calls, return the accumulated content
@@ -639,21 +697,18 @@ class SkillsUseAgent(ToolUseAgent):
 
                 print(f"  [{i}] {tool_name}")
                 if args:
-                    try:
-                        args_pretty = json.dumps(json.loads(args), indent=4)
+                    args_pretty = self._format_tool_args(args)
+                    if args_pretty:
                         print(f"      Args: {args_pretty}")
-                    except:
-                        print(f"      Args: {args}")
 
                 # Show execution indicator
+                import time
+
                 start_time = time.time()
                 print(f"      Executing...", end="", flush=True)
 
                 # Use toolset to execute tool
-                if self.toolset:
-                    tool_result = self.toolset.execute_tool(tool_name, args)
-                else:
-                    tool_result = "Skill toolset not initialized."
+                tool_result = self.toolset.execute_tool(tool_name, args)
 
                 elapsed = (time.time() - start_time) * 1000
                 print(f" ✓ Done ({elapsed:.0f}ms)")
@@ -663,13 +718,11 @@ class SkillsUseAgent(ToolUseAgent):
                 )
                 print(f"      Result: {result_display}")
 
-                self.message_history.append(
-                    {
-                        "role": "tool",
-                        "tool_call_id": tool_call["id"],
-                        "content": str(tool_result),
-                    }
+                # Use MessageBuilder for tool response
+                tool_msg = MessageBuilder.build_tool_response_message(
+                    tool_call["id"], str(tool_result)
                 )
+                self.message_history.append(tool_msg)
 
             print()  # Empty line after tools section
 
@@ -681,24 +734,6 @@ class SkillsUseAgent(ToolUseAgent):
 # ============================================================================
 
 
-# def search_tool(query: str) -> str:
-#     return f"Search: {query}" if query.strip() else "Empty query"
-#
-#
-# def calculator_tool(expr: str) -> str:
-#     import re
-#
-#     expr = expr.strip()
-#     if not expr:
-#         return "Empty expression"
-#     if not re.match(r"^[0-9+\-*/().\s]+$", expr):
-#         return "Invalid characters"
-#     try:
-#         return str(eval(expr, {"__builtins__": {}}))
-#     except Exception as e:
-#         return f"Error: {e}"
-
-
 def demo():
     load_dotenv()
 
@@ -706,10 +741,6 @@ def demo():
     agent = SkillsUseAgent(
         name="SkillAgent",
         model=Model(),
-        # tools=[
-        #     Tool(name="search", description="Web search", func=search_tool),
-        #     Tool(name="calculator", description="Calculator", func=calculator_tool),
-        # ],
         max_steps=20,  # 增加步数限制
     )
 
