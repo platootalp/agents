@@ -25,8 +25,8 @@ class BaseAgent(ABC):
         初始化 BaseAgent
         
         Args:
-            llm_client: LLM 客户端实例，所有 agent 都需要
-            tool_executor: 工具执行器，可选，部分 agent 需要
+            llm_client: LLM 客户端实例，所有 coder 都需要
+            tool_executor: 工具执行器，可选，部分 coder 需要
         """
         self.llm = llm_client
         self.tool_executor = tool_executor
@@ -34,13 +34,13 @@ class BaseAgent(ABC):
     @abstractmethod
     def run(self, question: str) -> str:
         """
-        执行 agent 的主要逻辑
+        执行 coder 的主要逻辑
         
         Args:
             question: 用户问题或任务描述
             
         Returns:
-            str: agent 的最终答案
+            str: coder 的最终答案
         """
         pass
     
@@ -68,7 +68,7 @@ class BaseAgent(ABC):
     
     def has_tools(self) -> bool:
         """
-        检查 agent 是否支持工具调用
+        检查 coder 是否支持工具调用
         
         Returns:
             bool: 如果 tool_executor 不为 None，返回 True
@@ -101,7 +101,7 @@ class BaseAgent(ABC):
             str: 工具执行结果
             
         Raises:
-            ValueError: 如果 agent 不支持工具调用
+            ValueError: 如果 coder 不支持工具调用
         """
         if not self.has_tools():
             raise ValueError("此 Agent 不支持工具调用，请提供 tool_executor")
@@ -115,7 +115,7 @@ class BaseAgent(ABC):
             str: 工具描述字符串
             
         Raises:
-            ValueError: 如果 agent 不支持工具调用
+            ValueError: 如果 coder 不支持工具调用
         """
         if not self.has_tools():
             raise ValueError("此 Agent 不支持工具调用，请提供 tool_executor")

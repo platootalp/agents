@@ -951,7 +951,7 @@ def create_github_stars_graph(llm=None):
     # 添加节点
     workflow.add_node("fetch", agent.fetch_github_stars)  # 新增：获取数据
     workflow.add_node("analyze", agent.analyze_repositories)
-    # workflow.add_node("recommend", agent.generate_recommendations)
+    # workflow.add_node("recommend", coder.generate_recommendations)
     workflow.add_node("generate", agent.generate_markdown)
 
     # 添加边

@@ -108,7 +108,7 @@ async def retrieve(
 async def respond(
     state: State, *, config: RunnableConfig
 ) -> dict[str, list[BaseMessage]]:
-    """Call the LLM powering our "agent"."""
+    """Call the LLM powering our "coder"."""
     configuration = Configuration.from_runnable_config(config)
     # Feel free to customize the prompt, model, and other logic!
     prompt = ChatPromptTemplate.from_messages(

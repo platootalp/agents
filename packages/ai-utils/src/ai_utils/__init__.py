@@ -1,7 +1,7 @@
-"""AI Utils - Shared utilities for AI agent applications.
+"""AI Utils - Shared utilities for AI coder applications.
 
 This package provides common types, configurations, and utilities
-used across AI agent applications in the monorepo.
+used across AI coder applications in the monorepo.
 """
 
 from ai_utils.config import ModelConfig

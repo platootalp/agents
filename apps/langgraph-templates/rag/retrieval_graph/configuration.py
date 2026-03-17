@@ -1,4 +1,4 @@
-"""Define the configurable parameters for the agent."""
+"""Define the configurable parameters for the coder."""
 
 from __future__ import annotations
 
@@ -72,7 +72,7 @@ T = TypeVar("T", bound=IndexConfiguration)
 
 @dataclass(kw_only=True)
 class Configuration(IndexConfiguration):
-    """The configuration for the agent."""
+    """The configuration for the coder."""
 
     response_system_prompt: str = field(
         default=prompts.RESPONSE_SYSTEM_PROMPT,

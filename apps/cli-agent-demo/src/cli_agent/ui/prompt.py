@@ -16,7 +16,7 @@ from prompt_toolkit.styles import Style
 
 
 class CommandCompleter(Completer):
-    """Custom completer for CLI agent commands."""
+    """Custom completer for CLI coder commands."""
 
     COMMANDS = [
         "help",
@@ -52,7 +52,7 @@ class PromptHandler:
     """Handle user input with prompt_toolkit features."""
 
     def __init__(self, history_file: Path | None = None) -> None:
-        self.history_file = history_file or Path.home() / ".cli-agent" / "history.txt"
+        self.history_file = history_file or Path.home() / ".cli-coder" / "history.txt"
         self.history_file.parent.mkdir(parents=True, exist_ok=True)
 
         self.style = Style.from_dict(

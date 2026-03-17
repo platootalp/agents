@@ -10,7 +10,7 @@
 import json
 import re
 import time
-from typing import Any, Dict, List, Optional, Callable
+from typing import Any, Callable
 from dataclasses import dataclass, field
 
 
@@ -29,27 +29,27 @@ class MessageBuilder:
     """统一消息构建工具类"""
 
     @staticmethod
-    def build_system_message(content: str) -> Dict[str, str]:
+    def build_system_message(content: str) -> dict[str, str]:
         """构建系统消息"""
         return {"role": "system", "content": content}
 
     @staticmethod
-    def build_user_message(content: str) -> Dict[str, str]:
+    def build_user_message(content: str) -> dict[str, str]:
         """构建用户消息"""
         return {"role": "user", "content": content}
 
     @staticmethod
     def build_assistant_message(
-        content: str, tool_calls: Optional[List[Dict[str, Any]]] = None
-    ) -> Dict[str, Any]:
+        content: str, tool_calls: list[dict[str, Any]] | None = None
+    ) -> dict[str, Any]:
         """构建助手消息"""
-        msg: Dict[str, Any] = {"role": "assistant", "content": content}
+        msg: dict[str, Any] = {"role": "assistant", "content": content}
         if tool_calls:
             msg["tool_calls"] = tool_calls
         return msg
 
     @staticmethod
-    def build_tool_response_message(tool_call_id: str, content: str) -> Dict[str, Any]:
+    def build_tool_response_message(tool_call_id: str, content: str) -> dict[str, Any]:
         """构建工具响应消息"""
         return {
             "role": "tool",
@@ -58,7 +58,7 @@ class MessageBuilder:
         }
 
     @staticmethod
-    def convert_api_tool_calls(api_tool_calls: Optional[List[Any]]) -> List[Dict[str, Any]]:
+    def convert_api_tool_calls(api_tool_calls: list[Any]) -> list[dict[str, Any]]:
         """将 API 工具调用对象转换为字典格式"""
         if not api_tool_calls:
             return []
@@ -75,9 +75,9 @@ class MessageBuilder:
         ]
 
     @staticmethod
-    def accumulate_tool_calls(tool_call_deltas: List[Any]) -> Dict[int, Dict[str, Any]]:
+    def accumulate_tool_calls(tool_call_deltas: list[Any]) -> dict[int, dict[str, Any]]:
         """从流式响应中累积工具调用"""
-        accumulated: Dict[int, Dict[str, Any]] = {}
+        accumulated: dict[int, dict[str, Any]] = {}
         for tc_delta in tool_call_deltas:
             index = tc_delta.index
             if index not in accumulated:
@@ -100,7 +100,7 @@ class ToolParser:
     """工具调用解析器 - 处理各种格式的工具调用"""
 
     @staticmethod
-    def parse_from_content(content: Optional[str]) -> List[Dict[str, Any]]:
+    def parse_from_content(content: str) -> list[dict[str, Any]]:
         """
         从内容字符串中解析工具调用
 
@@ -169,7 +169,7 @@ class ToolExecutorMixin:
     def __init__(self):
         self.tools = []
 
-    def _get_openai_tools(self) -> Optional[List[Dict[str, Any]]]:
+    def _get_openai_tools(self) -> list[dict[str, Any]] | None:
         """将工具转换为 OpenAI 函数调用格式"""
         if not self.tools:
             return None
@@ -203,7 +203,7 @@ class ToolExecutorMixin:
         if args:
             try:
                 return json.dumps(json.loads(args), indent=4)
-            except:
+            except json.JSONDecodeError:
                 return args
         return ""
 
@@ -229,7 +229,7 @@ class ConversationMixin(ToolExecutorMixin):
 
     def __init__(self):
         super().__init__()
-        self.message_history: List[Dict[str, Any]] = []
+        self.message_history: list[dict[str, Any]] = []
         self.max_steps: int = 10
 
     def _init_conversation(self, input: str, system_prompt: str, reset: bool = False) -> None:
@@ -240,18 +240,22 @@ class ConversationMixin(ToolExecutorMixin):
             ]
         self.message_history.append(MessageBuilder.build_user_message(input))
 
-    def _execute_tool_call(self, tool_call: Dict[str, Any]) -> ToolCallResult:
+    def _execute_tool_call(self, tool_call: dict[str, Any]) -> ToolCallResult:
         """执行单个工具调用"""
         tool_name = tool_call["function"]["name"]
         tool_id = tool_call["id"]
+        raw_args = tool_call["function"]["arguments"]
 
+        # 验证参数是否为有效的 JSON
         try:
-            tool_args = json.loads(tool_call["function"]["arguments"])
+            json.loads(raw_args)
+            args_to_send = raw_args
         except json.JSONDecodeError:
-            tool_args = {"query": tool_call["function"]["arguments"]}
+            # 如果参数不是有效的 JSON，尝试包装为查询参数
+            args_to_send = json.dumps({"query": raw_args}, ensure_ascii=False)
 
         start_time = time.time()
-        result = self.call_tool(tool_name, tool_call["function"]["arguments"])
+        result = self.call_tool(tool_name, args_to_send)
         elapsed_ms = (time.time() - start_time) * 1000
 
         return ToolCallResult(
@@ -259,12 +263,12 @@ class ConversationMixin(ToolExecutorMixin):
             tool_name=tool_name,
             result=str(result),
             elapsed_ms=elapsed_ms,
-            args=tool_call["function"]["arguments"],
+            args=args_to_send,
         )
 
     def _run_conversation_step(
-        self, openai_tools: Optional[List[Dict[str, Any]]], print_output: bool = False
-    ) -> tuple[Optional[str], bool]:
+        self, openai_tools: list[dict[str, Any]] | None, print_output: bool = False
+    ) -> tuple[str | None, bool]:
         """
         执行单步对话
 
@@ -326,8 +330,8 @@ class ConversationMixin(ToolExecutorMixin):
         return None, False
 
     def _run_conversation_stream_step(
-        self, openai_tools: Optional[List[Dict[str, Any]]], print_output: bool = False
-    ) -> tuple[Optional[str], bool]:
+        self, openai_tools: list[dict[str, Any]] | None, print_output: bool = False
+    ) -> tuple[str | None, bool]:
         """
         执行单步流式对话
 
@@ -338,7 +342,7 @@ class ConversationMixin(ToolExecutorMixin):
             return "No model configured.", False
 
         accumulated_content = ""
-        accumulated_tool_calls: Dict[int, Dict[str, Any]] = {}
+        accumulated_tool_calls: dict[int, dict[str, Any]] = {}
 
         stream = self.model.stream(self.message_history, tools=openai_tools)
 
@@ -354,11 +358,44 @@ class ConversationMixin(ToolExecutorMixin):
                     print(delta.content, end="", flush=True)
 
             if delta.tool_calls:
-                accumulated_tool_calls.update(
-                    MessageBuilder.accumulate_tool_calls(delta.tool_calls)
-                )
+                for tc_delta in delta.tool_calls:
+                    index = tc_delta.index
+                    if index not in accumulated_tool_calls:
+                        accumulated_tool_calls[index] = {
+                            "id": tc_delta.id or "",
+                            "type": "function",
+                            "function": {"name": "", "arguments": ""},
+                        }
+                    if tc_delta.id:
+                        accumulated_tool_calls[index]["id"] = tc_delta.id
+                    if tc_delta.function:
+                        if tc_delta.function.name:
+                            accumulated_tool_calls[index]["function"]["name"] = (
+                                tc_delta.function.name
+                            )
+                        if tc_delta.function.arguments:
+                            accumulated_tool_calls[index]["function"]["arguments"] += (
+                                tc_delta.function.arguments
+                            )
 
         tool_calls_list = list(accumulated_tool_calls.values())
+
+        # 验证工具调用参数的 JSON 完整性
+        valid_tool_calls = []
+        for tc in tool_calls_list:
+            args = tc.get("function", {}).get("arguments", "")
+            try:
+                json.loads(args)
+                valid_tool_calls.append(tc)
+            except json.JSONDecodeError:
+                # 如果参数不完整，跳过这个工具调用
+                if print_output:
+                    print(
+                        f"\n[跳过不完整的工具调用: {tc.get('function', {}).get('name', 'unknown')}]"
+                    )
+                continue
+
+        tool_calls_list = valid_tool_calls
 
         # 如果没有从 API 获取到工具调用，尝试从内容解析
         if not tool_calls_list and accumulated_content:

@@ -1,4 +1,4 @@
-"""Define he agent's tools."""
+"""Define he coder's tools."""
 
 import uuid
 from typing import Annotated, Optional

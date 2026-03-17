@@ -81,7 +81,7 @@ class IndexState:
     """
 
     docs: Annotated[Sequence[Document], reduce_docs]
-    """A list of documents that the agent can index."""
+    """A list of documents that the coder can index."""
 
 
 #############################  Agent State  ###################################
@@ -92,28 +92,28 @@ class IndexState:
 # internally.
 @dataclass(kw_only=True)
 class InputState:
-    """Represents the input state for the agent.
+    """Represents the input state for the coder.
 
     This class defines the structure of the input state, which includes
-    the messages exchanged between the user and the agent. It serves as
+    the messages exchanged between the user and the coder. It serves as
     a restricted version of the full State, providing a narrower interface
     to the outside world compared to what is maintained internally.
     """
 
     messages: Annotated[Sequence[AnyMessage], add_messages]
-    """Messages track the primary execution state of the agent.
+    """Messages track the primary execution state of the coder.
 
     Typically accumulates a pattern of Human/AI/Human/AI messages; if
-    you were to combine this template with a tool-calling ReAct agent pattern,
+    you were to combine this template with a tool-calling ReAct coder pattern,
     it may look like this:
 
     1. HumanMessage - user input
-    2. AIMessage with .tool_calls - agent picking tool(s) to use to collect
+    2. AIMessage with .tool_calls - coder picking tool(s) to use to collect
          information
     3. ToolMessage(s) - the responses (or errors) from the executed tools
     
         (... repeat steps 2 and 3 as needed ...)
-    4. AIMessage without .tool_calls - agent responding in unstructured
+    4. AIMessage without .tool_calls - coder responding in unstructured
         format to the user.
 
     5. HumanMessage - user responds with the next conversational turn.
@@ -131,7 +131,7 @@ class InputState:
         message from `right` will replace the message from `left`."""
 
 
-# This is the primary state of your agent, where you can store any information
+# This is the primary state of your coder, where you can store any information
 
 
 def add_queries(existing: Sequence[str], new: Sequence[str]) -> Sequence[str]:
@@ -149,13 +149,13 @@ def add_queries(existing: Sequence[str], new: Sequence[str]) -> Sequence[str]:
 
 @dataclass(kw_only=True)
 class State(InputState):
-    """The state of your graph / agent."""
+    """The state of your graph / coder."""
 
     queries: Annotated[list[str], add_queries] = field(default_factory=list)
-    """A list of search queries that the agent has generated."""
+    """A list of search queries that the coder has generated."""
 
     retrieved_docs: list[Document] = field(default_factory=list)
-    """Populated by the retriever. This is a list of documents that the agent can reference."""
+    """Populated by the retriever. This is a list of documents that the coder can reference."""
 
     # Feel free to add additional attributes to your state as needed.
     # Common examples include retrieved documents, extracted entities, API connections, etc.

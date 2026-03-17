@@ -42,7 +42,7 @@ def make_text_encoder(model: str) -> Embeddings:
 def make_elastic_retriever(
     configuration: IndexConfiguration, embedding_model: Embeddings
 ) -> Generator[VectorStoreRetriever, None, None]:
-    """Configure this agent to connect to a specific elastic index."""
+    """Configure this coder to connect to a specific elastic index."""
     from langchain_elasticsearch import ElasticsearchStore
 
     connection_options = {}
@@ -73,7 +73,7 @@ def make_elastic_retriever(
 def make_pinecone_retriever(
     configuration: IndexConfiguration, embedding_model: Embeddings
 ) -> Generator[VectorStoreRetriever, None, None]:
-    """Configure this agent to connect to a specific pinecone index."""
+    """Configure this coder to connect to a specific pinecone index."""
     from langchain_pinecone import PineconeVectorStore
 
     search_kwargs = configuration.search_kwargs
@@ -90,7 +90,7 @@ def make_pinecone_retriever(
 def make_mongodb_retriever(
     configuration: IndexConfiguration, embedding_model: Embeddings
 ) -> Generator[VectorStoreRetriever, None, None]:
-    """Configure this agent to connect to a specific MongoDB Atlas index & namespaces."""
+    """Configure this coder to connect to a specific MongoDB Atlas index & namespaces."""
     from langchain_mongodb.vectorstores import MongoDBAtlasVectorSearch
 
     vstore = MongoDBAtlasVectorSearch.from_connection_string(
@@ -108,7 +108,7 @@ def make_mongodb_retriever(
 def make_retriever(
     config: RunnableConfig,
 ) -> Generator[VectorStoreRetriever, None, None]:
-    """Create a retriever for the agent, based on the current configuration."""
+    """Create a retriever for the coder, based on the current configuration."""
     configuration = IndexConfiguration.from_runnable_config(config)
     embedding_model = make_text_encoder(configuration.embedding_model)
     user_id = configuration.user_id

@@ -91,9 +91,9 @@ interactions:
         Language Model applications","score":0.9994185,"raw_content":null},{"title":"LangChain''s
         Harrison Chase on Building the Orchestration Layer for AI ...","url":"https://www.sequoiacap.com/podcast/training-data-harrison-chase/","content":"Sonya
         Huang: Hi, and welcome to training data. We have with us today Harrison Chase,
-        founder and CEO of LangChain. Harrison is a legend in the agent ecosystem,
+        founder and CEO of LangChain. Harrison is a legend in the coder ecosystem,
         as the product visionary who first connected LLMs with tools and actions.
-        And LangChain is the most popular agent building framework in the AI space.","score":0.99876,"raw_content":null},{"title":"Harrison
+        And LangChain is the most popular coder building framework in the AI space.","score":0.99876,"raw_content":null},{"title":"Harrison
         Chase, LangChain CEO - Interview - YouTube","url":"https://www.youtube.com/watch?v=7D8bw_4hTdo","content":"Join
         us for an insightful interview with Harrison Chase, the CEO and co-founder
         of Langchain, as he provides a comprehensive overview of Langchain''s innovati","score":0.99854493,"raw_content":null},{"title":"Harrison
@@ -110,13 +110,13 @@ interactions:
         weather; Bash for summarization, syntax and semantics checking, and execution
         of shell scripts; multiple web scraping subsystems and templates; few-shot
         learning prompt generation support; finding and summarizing \"todo\" tasks
-        in code; Google Drive documents, spreadsheets, and presentations summarization,
+        in coder; Google Drive documents, spreadsheets, and presentations summarization,
         extraction, and creation; Google Search and Microsoft Bing web search; OpenAI,
         Anthropic, and Hugging Face language models; iFixit repair guides and wikis
         search and summarization; MapReduce for question answering, combining documents,
         and question generation; N-gram overlap scoring; PyPDF, pdfminer, fitz, and
         pymupdf for PDF file text extraction and manipulation; Python and JavaScript
-        code generation, analysis, and debugging; Milvus vector database[6] to store
+        coder generation, analysis, and debugging; Milvus vector database[6] to store
         and retrieve vector embeddings; Weaviate vector database[7] to cache embedding
         and data objects; Redis cache database storage; Python RequestsWrapper and
         other methods for API requests; SQL and NoSQL databases including JSON support;
@@ -125,7 +125,7 @@ interactions:
         symbols in threaded and asynchronous subprocess runs; and the Wolfram Alpha
         website and SDK.[8] As a language model integration framework, LangChain''s
         use-cases largely overlap with those of language models in general, including
-        document analysis and summarization, chatbots, and code analysis.[2]\nHistory[edit]\nLangChain
+        document analysis and summarization, chatbots, and coder analysis.[2]\nHistory[edit]\nLangChain
         was launched in October 2022 as an open source project by Harrison Chase,
         while working at machine learning startup Robust Intelligence. In April 2023,
         LangChain had incorporated and the new startup raised over $20 million in
@@ -196,8 +196,8 @@ interactions:
       easy to develop Language Model applications\"}, {\"url\": \"https://www.sequoiacap.com/podcast/training-data-harrison-chase/\",
       \"content\": \"Sonya Huang: Hi, and welcome to training data. We have with us
       today Harrison Chase, founder and CEO of LangChain. Harrison is a legend in
-      the agent ecosystem, as the product visionary who first connected LLMs with
-      tools and actions. And LangChain is the most popular agent building framework
+      the coder ecosystem, as the product visionary who first connected LLMs with
+      tools and actions. And LangChain is the most popular coder building framework
       in the AI space.\"}, {\"url\": \"https://www.youtube.com/watch?v=7D8bw_4hTdo\",
       \"content\": \"Join us for an insightful interview with Harrison Chase, the
       CEO and co-founder of Langchain, as he provides a comprehensive overview of
@@ -212,13 +212,13 @@ interactions:
       and Microsoft Azure cloud storage; API wrappers for news, movie information,
       and weather; Bash for summarization, syntax and semantics checking, and execution
       of shell scripts; multiple web scraping subsystems and templates; few-shot learning
-      prompt generation support; finding and summarizing \\\"todo\\\" tasks in code;
+      prompt generation support; finding and summarizing \\\"todo\\\" tasks in coder;
       Google Drive documents, spreadsheets, and presentations summarization, extraction,
       and creation; Google Search and Microsoft Bing web search; OpenAI, Anthropic,
       and Hugging Face language models; iFixit repair guides and wikis search and
       summarization; MapReduce for question answering, combining documents, and question
       generation; N-gram overlap scoring; PyPDF, pdfminer, fitz, and pymupdf for PDF
-      file text extraction and manipulation; Python and JavaScript code generation,
+      file text extraction and manipulation; Python and JavaScript coder generation,
       analysis, and debugging; Milvus vector database[6] to store and retrieve vector
       embeddings; Weaviate vector database[7] to cache embedding and data objects;
       Redis cache database storage; Python RequestsWrapper and other methods for API
@@ -228,7 +228,7 @@ interactions:
       asynchronous subprocess runs; and the Wolfram Alpha website and SDK.[8] As a
       language model integration framework, LangChain''s use-cases largely overlap
       with those of language models in general, including document analysis and summarization,
-      chatbots, and code analysis.[2]\\nHistory[edit]\\nLangChain was launched in
+      chatbots, and coder analysis.[2]\\nHistory[edit]\\nLangChain was launched in
       October 2022 as an open source project by Harrison Chase, while working at machine
       learning startup Robust Intelligence. In April 2023, LangChain had incorporated
       and the new startup raised over $20 million in funding at a valuation of at
@@ -410,8 +410,8 @@ interactions:
       easy to develop Language Model applications\"}, {\"url\": \"https://www.sequoiacap.com/podcast/training-data-harrison-chase/\",
       \"content\": \"Sonya Huang: Hi, and welcome to training data. We have with us
       today Harrison Chase, founder and CEO of LangChain. Harrison is a legend in
-      the agent ecosystem, as the product visionary who first connected LLMs with
-      tools and actions. And LangChain is the most popular agent building framework
+      the coder ecosystem, as the product visionary who first connected LLMs with
+      tools and actions. And LangChain is the most popular coder building framework
       in the AI space.\"}, {\"url\": \"https://www.youtube.com/watch?v=7D8bw_4hTdo\",
       \"content\": \"Join us for an insightful interview with Harrison Chase, the
       CEO and co-founder of Langchain, as he provides a comprehensive overview of
@@ -426,13 +426,13 @@ interactions:
       and Microsoft Azure cloud storage; API wrappers for news, movie information,
       and weather; Bash for summarization, syntax and semantics checking, and execution
       of shell scripts; multiple web scraping subsystems and templates; few-shot learning
-      prompt generation support; finding and summarizing \\\"todo\\\" tasks in code;
+      prompt generation support; finding and summarizing \\\"todo\\\" tasks in coder;
       Google Drive documents, spreadsheets, and presentations summarization, extraction,
       and creation; Google Search and Microsoft Bing web search; OpenAI, Anthropic,
       and Hugging Face language models; iFixit repair guides and wikis search and
       summarization; MapReduce for question answering, combining documents, and question
       generation; N-gram overlap scoring; PyPDF, pdfminer, fitz, and pymupdf for PDF
-      file text extraction and manipulation; Python and JavaScript code generation,
+      file text extraction and manipulation; Python and JavaScript coder generation,
       analysis, and debugging; Milvus vector database[6] to store and retrieve vector
       embeddings; Weaviate vector database[7] to cache embedding and data objects;
       Redis cache database storage; Python RequestsWrapper and other methods for API
@@ -442,7 +442,7 @@ interactions:
       asynchronous subprocess runs; and the Wolfram Alpha website and SDK.[8] As a
       language model integration framework, LangChain''s use-cases largely overlap
       with those of language models in general, including document analysis and summarization,
-      chatbots, and code analysis.[2]\\nHistory[edit]\\nLangChain was launched in
+      chatbots, and coder analysis.[2]\\nHistory[edit]\\nLangChain was launched in
       October 2022 as an open source project by Harrison Chase, while working at machine
       learning startup Robust Intelligence. In April 2023, LangChain had incorporated
       and the new startup raised over $20 million in funding at a valuation of at
@@ -627,8 +627,8 @@ interactions:
       easy to develop Language Model applications\"}, {\"url\": \"https://www.sequoiacap.com/podcast/training-data-harrison-chase/\",
       \"content\": \"Sonya Huang: Hi, and welcome to training data. We have with us
       today Harrison Chase, founder and CEO of LangChain. Harrison is a legend in
-      the agent ecosystem, as the product visionary who first connected LLMs with
-      tools and actions. And LangChain is the most popular agent building framework
+      the coder ecosystem, as the product visionary who first connected LLMs with
+      tools and actions. And LangChain is the most popular coder building framework
       in the AI space.\"}, {\"url\": \"https://www.youtube.com/watch?v=7D8bw_4hTdo\",
       \"content\": \"Join us for an insightful interview with Harrison Chase, the
       CEO and co-founder of Langchain, as he provides a comprehensive overview of
@@ -643,13 +643,13 @@ interactions:
       and Microsoft Azure cloud storage; API wrappers for news, movie information,
       and weather; Bash for summarization, syntax and semantics checking, and execution
       of shell scripts; multiple web scraping subsystems and templates; few-shot learning
-      prompt generation support; finding and summarizing \\\"todo\\\" tasks in code;
+      prompt generation support; finding and summarizing \\\"todo\\\" tasks in coder;
       Google Drive documents, spreadsheets, and presentations summarization, extraction,
       and creation; Google Search and Microsoft Bing web search; OpenAI, Anthropic,
       and Hugging Face language models; iFixit repair guides and wikis search and
       summarization; MapReduce for question answering, combining documents, and question
       generation; N-gram overlap scoring; PyPDF, pdfminer, fitz, and pymupdf for PDF
-      file text extraction and manipulation; Python and JavaScript code generation,
+      file text extraction and manipulation; Python and JavaScript coder generation,
       analysis, and debugging; Milvus vector database[6] to store and retrieve vector
       embeddings; Weaviate vector database[7] to cache embedding and data objects;
       Redis cache database storage; Python RequestsWrapper and other methods for API
@@ -659,7 +659,7 @@ interactions:
       asynchronous subprocess runs; and the Wolfram Alpha website and SDK.[8] As a
       language model integration framework, LangChain''s use-cases largely overlap
       with those of language models in general, including document analysis and summarization,
-      chatbots, and code analysis.[2]\\nHistory[edit]\\nLangChain was launched in
+      chatbots, and coder analysis.[2]\\nHistory[edit]\\nLangChain was launched in
       October 2022 as an open source project by Harrison Chase, while working at machine
       learning startup Robust Intelligence. In April 2023, LangChain had incorporated
       and the new startup raised over $20 million in funding at a valuation of at
@@ -841,8 +841,8 @@ interactions:
       easy to develop Language Model applications\"}, {\"url\": \"https://www.sequoiacap.com/podcast/training-data-harrison-chase/\",
       \"content\": \"Sonya Huang: Hi, and welcome to training data. We have with us
       today Harrison Chase, founder and CEO of LangChain. Harrison is a legend in
-      the agent ecosystem, as the product visionary who first connected LLMs with
-      tools and actions. And LangChain is the most popular agent building framework
+      the coder ecosystem, as the product visionary who first connected LLMs with
+      tools and actions. And LangChain is the most popular coder building framework
       in the AI space.\"}, {\"url\": \"https://www.youtube.com/watch?v=7D8bw_4hTdo\",
       \"content\": \"Join us for an insightful interview with Harrison Chase, the
       CEO and co-founder of Langchain, as he provides a comprehensive overview of
@@ -857,13 +857,13 @@ interactions:
       and Microsoft Azure cloud storage; API wrappers for news, movie information,
       and weather; Bash for summarization, syntax and semantics checking, and execution
       of shell scripts; multiple web scraping subsystems and templates; few-shot learning
-      prompt generation support; finding and summarizing \\\"todo\\\" tasks in code;
+      prompt generation support; finding and summarizing \\\"todo\\\" tasks in coder;
       Google Drive documents, spreadsheets, and presentations summarization, extraction,
       and creation; Google Search and Microsoft Bing web search; OpenAI, Anthropic,
       and Hugging Face language models; iFixit repair guides and wikis search and
       summarization; MapReduce for question answering, combining documents, and question
       generation; N-gram overlap scoring; PyPDF, pdfminer, fitz, and pymupdf for PDF
-      file text extraction and manipulation; Python and JavaScript code generation,
+      file text extraction and manipulation; Python and JavaScript coder generation,
       analysis, and debugging; Milvus vector database[6] to store and retrieve vector
       embeddings; Weaviate vector database[7] to cache embedding and data objects;
       Redis cache database storage; Python RequestsWrapper and other methods for API
@@ -873,7 +873,7 @@ interactions:
       asynchronous subprocess runs; and the Wolfram Alpha website and SDK.[8] As a
       language model integration framework, LangChain''s use-cases largely overlap
       with those of language models in general, including document analysis and summarization,
-      chatbots, and code analysis.[2]\\nHistory[edit]\\nLangChain was launched in
+      chatbots, and coder analysis.[2]\\nHistory[edit]\\nLangChain was launched in
       October 2022 as an open source project by Harrison Chase, while working at machine
       learning startup Robust Intelligence. In April 2023, LangChain had incorporated
       and the new startup raised over $20 million in funding at a valuation of at
@@ -1058,8 +1058,8 @@ interactions:
       easy to develop Language Model applications\"}, {\"url\": \"https://www.sequoiacap.com/podcast/training-data-harrison-chase/\",
       \"content\": \"Sonya Huang: Hi, and welcome to training data. We have with us
       today Harrison Chase, founder and CEO of LangChain. Harrison is a legend in
-      the agent ecosystem, as the product visionary who first connected LLMs with
-      tools and actions. And LangChain is the most popular agent building framework
+      the coder ecosystem, as the product visionary who first connected LLMs with
+      tools and actions. And LangChain is the most popular coder building framework
       in the AI space.\"}, {\"url\": \"https://www.youtube.com/watch?v=7D8bw_4hTdo\",
       \"content\": \"Join us for an insightful interview with Harrison Chase, the
       CEO and co-founder of Langchain, as he provides a comprehensive overview of
@@ -1074,13 +1074,13 @@ interactions:
       and Microsoft Azure cloud storage; API wrappers for news, movie information,
       and weather; Bash for summarization, syntax and semantics checking, and execution
       of shell scripts; multiple web scraping subsystems and templates; few-shot learning
-      prompt generation support; finding and summarizing \\\"todo\\\" tasks in code;
+      prompt generation support; finding and summarizing \\\"todo\\\" tasks in coder;
       Google Drive documents, spreadsheets, and presentations summarization, extraction,
       and creation; Google Search and Microsoft Bing web search; OpenAI, Anthropic,
       and Hugging Face language models; iFixit repair guides and wikis search and
       summarization; MapReduce for question answering, combining documents, and question
       generation; N-gram overlap scoring; PyPDF, pdfminer, fitz, and pymupdf for PDF
-      file text extraction and manipulation; Python and JavaScript code generation,
+      file text extraction and manipulation; Python and JavaScript coder generation,
       analysis, and debugging; Milvus vector database[6] to store and retrieve vector
       embeddings; Weaviate vector database[7] to cache embedding and data objects;
       Redis cache database storage; Python RequestsWrapper and other methods for API
@@ -1090,7 +1090,7 @@ interactions:
       asynchronous subprocess runs; and the Wolfram Alpha website and SDK.[8] As a
       language model integration framework, LangChain''s use-cases largely overlap
       with those of language models in general, including document analysis and summarization,
-      chatbots, and code analysis.[2]\\nHistory[edit]\\nLangChain was launched in
+      chatbots, and coder analysis.[2]\\nHistory[edit]\\nLangChain was launched in
       October 2022 as an open source project by Harrison Chase, while working at machine
       learning startup Robust Intelligence. In April 2023, LangChain had incorporated
       and the new startup raised over $20 million in funding at a valuation of at
@@ -1273,8 +1273,8 @@ interactions:
       easy to develop Language Model applications\"}, {\"url\": \"https://www.sequoiacap.com/podcast/training-data-harrison-chase/\",
       \"content\": \"Sonya Huang: Hi, and welcome to training data. We have with us
       today Harrison Chase, founder and CEO of LangChain. Harrison is a legend in
-      the agent ecosystem, as the product visionary who first connected LLMs with
-      tools and actions. And LangChain is the most popular agent building framework
+      the coder ecosystem, as the product visionary who first connected LLMs with
+      tools and actions. And LangChain is the most popular coder building framework
       in the AI space.\"}, {\"url\": \"https://www.youtube.com/watch?v=7D8bw_4hTdo\",
       \"content\": \"Join us for an insightful interview with Harrison Chase, the
       CEO and co-founder of Langchain, as he provides a comprehensive overview of
@@ -1289,13 +1289,13 @@ interactions:
       and Microsoft Azure cloud storage; API wrappers for news, movie information,
       and weather; Bash for summarization, syntax and semantics checking, and execution
       of shell scripts; multiple web scraping subsystems and templates; few-shot learning
-      prompt generation support; finding and summarizing \\\"todo\\\" tasks in code;
+      prompt generation support; finding and summarizing \\\"todo\\\" tasks in coder;
       Google Drive documents, spreadsheets, and presentations summarization, extraction,
       and creation; Google Search and Microsoft Bing web search; OpenAI, Anthropic,
       and Hugging Face language models; iFixit repair guides and wikis search and
       summarization; MapReduce for question answering, combining documents, and question
       generation; N-gram overlap scoring; PyPDF, pdfminer, fitz, and pymupdf for PDF
-      file text extraction and manipulation; Python and JavaScript code generation,
+      file text extraction and manipulation; Python and JavaScript coder generation,
       analysis, and debugging; Milvus vector database[6] to store and retrieve vector
       embeddings; Weaviate vector database[7] to cache embedding and data objects;
       Redis cache database storage; Python RequestsWrapper and other methods for API
@@ -1305,7 +1305,7 @@ interactions:
       asynchronous subprocess runs; and the Wolfram Alpha website and SDK.[8] As a
       language model integration framework, LangChain''s use-cases largely overlap
       with those of language models in general, including document analysis and summarization,
-      chatbots, and code analysis.[2]\\nHistory[edit]\\nLangChain was launched in
+      chatbots, and coder analysis.[2]\\nHistory[edit]\\nLangChain was launched in
       October 2022 as an open source project by Harrison Chase, while working at machine
       learning startup Robust Intelligence. In April 2023, LangChain had incorporated
       and the new startup raised over $20 million in funding at a valuation of at
@@ -1488,8 +1488,8 @@ interactions:
       easy to develop Language Model applications\"}, {\"url\": \"https://www.sequoiacap.com/podcast/training-data-harrison-chase/\",
       \"content\": \"Sonya Huang: Hi, and welcome to training data. We have with us
       today Harrison Chase, founder and CEO of LangChain. Harrison is a legend in
-      the agent ecosystem, as the product visionary who first connected LLMs with
-      tools and actions. And LangChain is the most popular agent building framework
+      the coder ecosystem, as the product visionary who first connected LLMs with
+      tools and actions. And LangChain is the most popular coder building framework
       in the AI space.\"}, {\"url\": \"https://www.youtube.com/watch?v=7D8bw_4hTdo\",
       \"content\": \"Join us for an insightful interview with Harrison Chase, the
       CEO and co-founder of Langchain, as he provides a comprehensive overview of
@@ -1504,13 +1504,13 @@ interactions:
       and Microsoft Azure cloud storage; API wrappers for news, movie information,
       and weather; Bash for summarization, syntax and semantics checking, and execution
       of shell scripts; multiple web scraping subsystems and templates; few-shot learning
-      prompt generation support; finding and summarizing \\\"todo\\\" tasks in code;
+      prompt generation support; finding and summarizing \\\"todo\\\" tasks in coder;
       Google Drive documents, spreadsheets, and presentations summarization, extraction,
       and creation; Google Search and Microsoft Bing web search; OpenAI, Anthropic,
       and Hugging Face language models; iFixit repair guides and wikis search and
       summarization; MapReduce for question answering, combining documents, and question
       generation; N-gram overlap scoring; PyPDF, pdfminer, fitz, and pymupdf for PDF
-      file text extraction and manipulation; Python and JavaScript code generation,
+      file text extraction and manipulation; Python and JavaScript coder generation,
       analysis, and debugging; Milvus vector database[6] to store and retrieve vector
       embeddings; Weaviate vector database[7] to cache embedding and data objects;
       Redis cache database storage; Python RequestsWrapper and other methods for API
@@ -1520,7 +1520,7 @@ interactions:
       asynchronous subprocess runs; and the Wolfram Alpha website and SDK.[8] As a
       language model integration framework, LangChain''s use-cases largely overlap
       with those of language models in general, including document analysis and summarization,
-      chatbots, and code analysis.[2]\\nHistory[edit]\\nLangChain was launched in
+      chatbots, and coder analysis.[2]\\nHistory[edit]\\nLangChain was launched in
       October 2022 as an open source project by Harrison Chase, while working at machine
       learning startup Robust Intelligence. In April 2023, LangChain had incorporated
       and the new startup raised over $20 million in funding at a valuation of at
@@ -1705,8 +1705,8 @@ interactions:
       easy to develop Language Model applications\"}, {\"url\": \"https://www.sequoiacap.com/podcast/training-data-harrison-chase/\",
       \"content\": \"Sonya Huang: Hi, and welcome to training data. We have with us
       today Harrison Chase, founder and CEO of LangChain. Harrison is a legend in
-      the agent ecosystem, as the product visionary who first connected LLMs with
-      tools and actions. And LangChain is the most popular agent building framework
+      the coder ecosystem, as the product visionary who first connected LLMs with
+      tools and actions. And LangChain is the most popular coder building framework
       in the AI space.\"}, {\"url\": \"https://www.youtube.com/watch?v=7D8bw_4hTdo\",
       \"content\": \"Join us for an insightful interview with Harrison Chase, the
       CEO and co-founder of Langchain, as he provides a comprehensive overview of
@@ -1721,13 +1721,13 @@ interactions:
       and Microsoft Azure cloud storage; API wrappers for news, movie information,
       and weather; Bash for summarization, syntax and semantics checking, and execution
       of shell scripts; multiple web scraping subsystems and templates; few-shot learning
-      prompt generation support; finding and summarizing \\\"todo\\\" tasks in code;
+      prompt generation support; finding and summarizing \\\"todo\\\" tasks in coder;
       Google Drive documents, spreadsheets, and presentations summarization, extraction,
       and creation; Google Search and Microsoft Bing web search; OpenAI, Anthropic,
       and Hugging Face language models; iFixit repair guides and wikis search and
       summarization; MapReduce for question answering, combining documents, and question
       generation; N-gram overlap scoring; PyPDF, pdfminer, fitz, and pymupdf for PDF
-      file text extraction and manipulation; Python and JavaScript code generation,
+      file text extraction and manipulation; Python and JavaScript coder generation,
       analysis, and debugging; Milvus vector database[6] to store and retrieve vector
       embeddings; Weaviate vector database[7] to cache embedding and data objects;
       Redis cache database storage; Python RequestsWrapper and other methods for API
@@ -1737,7 +1737,7 @@ interactions:
       asynchronous subprocess runs; and the Wolfram Alpha website and SDK.[8] As a
       language model integration framework, LangChain''s use-cases largely overlap
       with those of language models in general, including document analysis and summarization,
-      chatbots, and code analysis.[2]\\nHistory[edit]\\nLangChain was launched in
+      chatbots, and coder analysis.[2]\\nHistory[edit]\\nLangChain was launched in
       October 2022 as an open source project by Harrison Chase, while working at machine
       learning startup Robust Intelligence. In April 2023, LangChain had incorporated
       and the new startup raised over $20 million in funding at a valuation of at
@@ -1922,8 +1922,8 @@ interactions:
       easy to develop Language Model applications\"}, {\"url\": \"https://www.sequoiacap.com/podcast/training-data-harrison-chase/\",
       \"content\": \"Sonya Huang: Hi, and welcome to training data. We have with us
       today Harrison Chase, founder and CEO of LangChain. Harrison is a legend in
-      the agent ecosystem, as the product visionary who first connected LLMs with
-      tools and actions. And LangChain is the most popular agent building framework
+      the coder ecosystem, as the product visionary who first connected LLMs with
+      tools and actions. And LangChain is the most popular coder building framework
       in the AI space.\"}, {\"url\": \"https://www.youtube.com/watch?v=7D8bw_4hTdo\",
       \"content\": \"Join us for an insightful interview with Harrison Chase, the
       CEO and co-founder of Langchain, as he provides a comprehensive overview of
@@ -1938,13 +1938,13 @@ interactions:
       and Microsoft Azure cloud storage; API wrappers for news, movie information,
       and weather; Bash for summarization, syntax and semantics checking, and execution
       of shell scripts; multiple web scraping subsystems and templates; few-shot learning
-      prompt generation support; finding and summarizing \\\"todo\\\" tasks in code;
+      prompt generation support; finding and summarizing \\\"todo\\\" tasks in coder;
       Google Drive documents, spreadsheets, and presentations summarization, extraction,
       and creation; Google Search and Microsoft Bing web search; OpenAI, Anthropic,
       and Hugging Face language models; iFixit repair guides and wikis search and
       summarization; MapReduce for question answering, combining documents, and question
       generation; N-gram overlap scoring; PyPDF, pdfminer, fitz, and pymupdf for PDF
-      file text extraction and manipulation; Python and JavaScript code generation,
+      file text extraction and manipulation; Python and JavaScript coder generation,
       analysis, and debugging; Milvus vector database[6] to store and retrieve vector
       embeddings; Weaviate vector database[7] to cache embedding and data objects;
       Redis cache database storage; Python RequestsWrapper and other methods for API
@@ -1954,7 +1954,7 @@ interactions:
       asynchronous subprocess runs; and the Wolfram Alpha website and SDK.[8] As a
       language model integration framework, LangChain''s use-cases largely overlap
       with those of language models in general, including document analysis and summarization,
-      chatbots, and code analysis.[2]\\nHistory[edit]\\nLangChain was launched in
+      chatbots, and coder analysis.[2]\\nHistory[edit]\\nLangChain was launched in
       October 2022 as an open source project by Harrison Chase, while working at machine
       learning startup Robust Intelligence. In April 2023, LangChain had incorporated
       and the new startup raised over $20 million in funding at a valuation of at

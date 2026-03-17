@@ -66,7 +66,7 @@ uv sync
 # Run tests across workspace
 uv run pytest
 
-# Lint all code
+# Lint all coder
 uv run ruff check .
 
 # Type check
@@ -82,3 +82,6 @@ cd apps/framework && uv run python examples/tools_example.py
 - **Package Management**: UV only, no pip requirements files at root
 - **Test Discovery**: Automatically finds tests in apps/ and packages/
 - **Skill System**: Modular skills with progressive context loading
+
+## GenX Added Memories
+- 用中文回答用户的问题

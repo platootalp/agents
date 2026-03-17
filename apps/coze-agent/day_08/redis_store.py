@@ -410,7 +410,7 @@ class StateRecoveryManager:
             return False
         
         # 检查必要的数据字段
-        if "code" not in state and state.get("workflow_status") != "completed":
+        if "coder" not in state and state.get("workflow_status") != "completed":
             return False
         
         return True
@@ -497,7 +497,7 @@ async def test_redis_store():
     
     # 测试保存状态
     test_state = {
-        "code": "def test(): pass",
+        "coder": "def test(): pass",
         "status": "running",
         "priority": 2,
         "assigned_agent": "analyzer"

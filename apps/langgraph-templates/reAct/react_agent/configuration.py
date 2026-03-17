@@ -1,4 +1,4 @@
-"""Define the configurable parameters for the agent."""
+"""Define the configurable parameters for the coder."""
 
 from __future__ import annotations
 
@@ -12,20 +12,20 @@ from react_agent import prompts
 
 @dataclass(kw_only=True)
 class Configuration:
-    """The configuration for the agent."""
+    """The configuration for the coder."""
 
     system_prompt: str = field(
         default=prompts.SYSTEM_PROMPT,
         metadata={
-            "description": "The system prompt to use for the agent's interactions. "
-                           "This prompt sets the context and behavior for the agent."
+            "description": "The system prompt to use for the coder's interactions. "
+                           "This prompt sets the context and behavior for the coder."
         },
     )
 
     model: Annotated[str, {"__template_metadata__": {"kind": "llm"}}] = field(
         default="anthropic/claude-3-5-sonnet-20240620",
         metadata={
-            "description": "The name of the language model to use for the agent's main interactions. "
+            "description": "The name of the language model to use for the coder's main interactions. "
                            "Should be in the form: provider/model-name."
         },
     )
@@ -47,7 +47,7 @@ class Configuration:
     llm: Any = field(
         default=None,
         metadata={
-            "description": "The language model to use for the agent's main interactions."
+            "description": "The language model to use for the coder's main interactions."
         }
     )
 

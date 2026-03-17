@@ -32,14 +32,14 @@ from langchain_mcp_adapters.client import MultiServerMCPClient
 
 @dataclass
 class InputState:
-    """Input state for the agent."""
+    """Input state for the coder."""
 
     messages: Annotated[Sequence[AnyMessage], add_messages] = field(default_factory=list)
 
 
 @dataclass
 class State(InputState):
-    """Complete agent state with managed fields."""
+    """Complete coder state with managed fields."""
 
     is_last_step: IsLastStep = field(default=False)
 
@@ -109,7 +109,7 @@ async def create_mcp_agent_graph(
     temperature: float = 0.0,
     max_steps: int = 10,
 ):
-    """Create a LangGraph agent with MCP tools.
+    """Create a LangGraph coder with MCP tools.
 
     Args:
         client: Configured MultiServerMCPClient
@@ -131,13 +131,13 @@ async def create_mcp_agent_graph(
     builder = StateGraph(State, input=InputState)
 
     # Add nodes
-    builder.add_node("agent", agent_node)
+    builder.add_node("coder", agent_node)
     builder.add_node("tools", tools_node)
 
     # Define edges
-    builder.add_edge("__start__", "agent")
-    builder.add_conditional_edges("agent", tools_condition)
-    builder.add_edge("tools", "agent")
+    builder.add_edge("__start__", "coder")
+    builder.add_conditional_edges("coder", tools_condition)
+    builder.add_edge("tools", "coder")
 
     # Compile with tool configuration
     graph = builder.compile()
@@ -157,7 +157,7 @@ class LangGraphMcpAgentV2:
 
     Example:
         # Single server
-        agent = LangGraphMcpAgentV2({
+        coder = LangGraphMcpAgentV2({
             "math": {
                 "transport": "stdio",
                 "command": "python",
@@ -166,13 +166,13 @@ class LangGraphMcpAgentV2:
         })
 
         # Multiple servers
-        agent = LangGraphMcpAgentV2({
+        coder = LangGraphMcpAgentV2({
             "math": {"transport": "stdio", "command": "python", "args": ["math.py"]},
             "weather": {"transport": "http", "url": "http://localhost:8000/mcp"},
         })
 
         # Run
-        result = await agent.ainvoke("What is 125 * 301?")
+        result = await coder.ainvoke("What is 125 * 301?")
     """
 
     def __init__(
@@ -182,7 +182,7 @@ class LangGraphMcpAgentV2:
         temperature: float = 0.0,
         max_steps: int = 10,
     ):
-        """Initialize the agent with MCP server configurations.
+        """Initialize the coder with MCP server configurations.
 
         Args:
             servers: MCP server configurations, keyed by server name
@@ -228,7 +228,7 @@ class LangGraphMcpAgentV2:
         )
 
     def invoke(self, input: str) -> str:
-        """Run agent synchronously.
+        """Run coder synchronously.
 
         Args:
             input: User query
@@ -239,7 +239,7 @@ class LangGraphMcpAgentV2:
         return asyncio.run(self.ainvoke(input))
 
     async def ainvoke(self, input: str) -> str:
-        """Run agent asynchronously.
+        """Run coder asynchronously.
 
         Args:
             input: User query
@@ -263,7 +263,7 @@ class LangGraphMcpAgentV2:
         return str(last_message.content)
 
     async def astream(self, input: str):
-        """Stream agent execution events.
+        """Stream coder execution events.
 
         Args:
             input: User query
@@ -280,7 +280,7 @@ class LangGraphMcpAgentV2:
             yield event
 
     def stream(self, input: str) -> str:
-        """Stream agent execution synchronously.
+        """Stream coder execution synchronously.
 
         Args:
             input: User query
@@ -293,8 +293,8 @@ class LangGraphMcpAgentV2:
         async def _stream():
             nonlocal accumulated
             async for event in self.astream(input):
-                if "agent" in event:
-                    messages = event["agent"].get("messages", [])
+                if "coder" in event:
+                    messages = event["coder"].get("messages", [])
                     for msg in messages:
                         if isinstance(msg, AIMessage) and msg.content:
                             print(msg.content, end="", flush=True)
@@ -316,7 +316,7 @@ async def create_mcp_agent(
     model: str = "gpt-4o",
     temperature: float = 0.0,
 ) -> LangGraphMcpAgentV2:
-    """Factory function to create an MCP agent.
+    """Factory function to create an MCP coder.
 
     Args:
         server_config: MCP server configurations
@@ -410,8 +410,8 @@ if __name__ == "__main__":
         print("🚀 LangGraph MCP Agent v2 (Official Adapters)")
         print("=" * 60)
 
-        # Create agent with server config
-        print("\n1️⃣  Creating agent with MCP config...")
+        # Create coder with server config
+        print("\n1️⃣  Creating coder with MCP config...")
         agent = LangGraphMcpAgentV2(
             {
                 "demo": {

@@ -1,6 +1,6 @@
-"""LangChainMcpAgent - An MCP agent implemented with LangChain.
+"""LangChainMcpAgent - An MCP coder implemented with LangChain.
 
-This module provides a simplified MCP agent using LangChain's agent framework.
+This module provides a simplified MCP coder using LangChain's coder framework.
 Compared to the raw FastMCP implementation, this version leverages:
 - AgentExecutor for automatic tool call loops
 - LangChain-MCP adapter for tool conversion
@@ -31,24 +31,24 @@ class StreamChunk:
 
 
 class LangChainMcpAgent:
-    """An MCP agent implemented with LangChain (highly simplified).
+    """An MCP coder implemented with LangChain (highly simplified).
 
     Example:
         # Stdio transport
-        agent = LangChainMcpAgent(
+        coder = LangChainMcpAgent(
             name="MCP Agent",
             command="python",
             args=["mcp_server.py"],
         )
 
         # Synchronous usage
-        result = agent.invoke("What can you help me with?")
+        result = coder.invoke("What can you help me with?")
 
         # Async usage
-        result = await agent.ainvoke("Tell me a story")
+        result = await coder.ainvoke("Tell me a story")
 
         # Streaming usage
-        async for chunk in agent.astream("Hello"):
+        async for chunk in coder.astream("Hello"):
             print(chunk.content, end="")
     """
 
@@ -64,7 +64,7 @@ class LangChainMcpAgent:
         args: Optional[List[str]] = None,
         env: Optional[Dict[str, str]] = None,
     ):
-        """Initialize the LangChain MCP agent.
+        """Initialize the LangChain MCP coder.
 
         Args:
             name: Agent name
@@ -97,7 +97,7 @@ class LangChainMcpAgent:
         self._session: Optional[ClientSession] = None
 
     def _build_prompt(self) -> ChatPromptTemplate:
-        """Build the agent prompt with system message and chat history."""
+        """Build the coder prompt with system message and chat history."""
         return ChatPromptTemplate.from_messages(
             [
                 (
@@ -114,7 +114,7 @@ class LangChainMcpAgent:
         )
 
     async def _initialize(self) -> None:
-        """Initialize MCP connection and agent executor."""
+        """Initialize MCP connection and coder executor."""
         if self._agent_executor is not None:
             return
 
@@ -132,11 +132,11 @@ class LangChainMcpAgent:
                 toolkit = MCPToolkit(session)
                 self._tools = await toolkit.get_tools()
 
-                # Create OpenAI Tools agent
+                # Create OpenAI Tools coder
                 prompt = self._build_prompt()
                 agent = create_openai_tools_agent(self.llm, self._tools, prompt)
 
-                # Create agent executor
+                # Create coder executor
                 self._agent_executor = AgentExecutor(
                     agent=agent,
                     tools=self._tools,
@@ -151,7 +151,7 @@ class LangChainMcpAgent:
             input: User query string
 
         Returns:
-            Final response from the agent
+            Final response from the coder
         """
         return asyncio.run(self.ainvoke(input))
 
@@ -162,7 +162,7 @@ class LangChainMcpAgent:
             input: User query string
 
         Returns:
-            Final response from the agent
+            Final response from the coder
         """
         await self._initialize()
 

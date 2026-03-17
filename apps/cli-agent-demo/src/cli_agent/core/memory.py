@@ -29,9 +29,9 @@ class MemoryManager:
         if storage_dir:
             self.storage_dir = Path(storage_dir)
         else:
-            # Default: ~/.cli-agent/history
+            # Default: ~/.cli-coder/history
             home = Path.home()
-            self.storage_dir = home / ".cli-agent" / "history"
+            self.storage_dir = home / ".cli-coder" / "history"
 
         self.storage_dir.mkdir(parents=True, exist_ok=True)
         self._current_session: ConversationSession | None = None

@@ -103,13 +103,13 @@ interactions:
         weather; Bash for summarization, syntax and semantics checking, and execution
         of shell scripts; multiple web scraping subsystems and templates; few-shot
         learning prompt generation support; finding and summarizing \\\"todo\\\" tasks
-        in code; Google Drive documents, spreadsheets, and presentations summarization,
+        in coder; Google Drive documents, spreadsheets, and presentations summarization,
         extraction, and creation; Google Search and Microsoft Bing web search; OpenAI,
         Anthropic, and Hugging Face language models; iFixit repair guides and wikis
         search and summarization; MapReduce for question answering, combining documents,
         and question generation; N-gram overlap scoring; PyPDF, pdfminer, fitz, and
         pymupdf for PDF file text extraction and manipulation; Python and JavaScript
-        code generation, analysis, and debugging; Milvus vector database[6] to store
+        coder generation, analysis, and debugging; Milvus vector database[6] to store
         and retrieve vector embeddings; Weaviate vector database[7] to cache embedding
         and data objects; Redis cache database storage; Python RequestsWrapper and
         other methods for API requests; SQL and NoSQL databases including JSON support;
@@ -118,7 +118,7 @@ interactions:
         symbols in threaded and asynchronous subprocess runs; and the Wolfram Alpha
         website and SDK.[8] As a language model integration framework, LangChain's
         use-cases largely overlap with those of language models in general, including
-        document analysis and summarization, chatbots, and code analysis.[2]\\nHistory[edit]\\nLangChain
+        document analysis and summarization, chatbots, and coder analysis.[2]\\nHistory[edit]\\nLangChain
         was launched in October 2022 as an open source project by Harrison Chase,
         while working at machine learning startup Robust Intelligence. In April 2023,
         LangChain had incorporated and the new startup raised over $20 million in
@@ -157,7 +157,7 @@ interactions:
         to production. Announcing the General Availability of LangSmith\\nToday, we\u2019re
         thrilled to announce the general availability of LangSmith \u2014 our solution
         for LLM application development, monitoring, and testing.\\n We build products
-        that enable developers to go from an idea to working code in an afternoon
+        that enable developers to go from an idea to working coder in an afternoon
         and in the hands of users in days or weeks. The biggest developer community
         in \_GenAI\\nLearn alongside the 100K+ practitioners\\nwho are pushing the
         industry forward.\\n And we built LangSmith to support all stages of the AI
@@ -197,7 +197,7 @@ interactions:
         has the model IO, the retrieval, the agents, the callbacks, things like that.
         And then like, I know a lot of people are doing this, but like a personal
         assistant for like managing like email calendar, basic stuff, which I think
-        is, I think that's like a fantastic application for these like agent like
+        is, I think that's like a fantastic application for these like coder like
         things, because if you think about personal assistants today, you usually
         interact, I don't have one, but I'm told you interact with them over email.
         Show Notes\\nLangChain\\nLangChain\u2019s Berkshire Hathaway Homepage\\nAbstractions
@@ -287,13 +287,13 @@ interactions:
       storage; API wrappers for news, movie information, and weather; Bash for summarization,
       syntax and semantics checking, and execution of shell scripts; multiple web
       scraping subsystems and templates; few-shot learning prompt generation support;
-      finding and summarizing \\\"todo\\\" tasks in code; Google Drive documents,
+      finding and summarizing \\\"todo\\\" tasks in coder; Google Drive documents,
       spreadsheets, and presentations summarization, extraction, and creation; Google
       Search and Microsoft Bing web search; OpenAI, Anthropic, and Hugging Face language
       models; iFixit repair guides and wikis search and summarization; MapReduce for
       question answering, combining documents, and question generation; N-gram overlap
       scoring; PyPDF, pdfminer, fitz, and pymupdf for PDF file text extraction and
-      manipulation; Python and JavaScript code generation, analysis, and debugging;
+      manipulation; Python and JavaScript coder generation, analysis, and debugging;
       Milvus vector database[6] to store and retrieve vector embeddings; Weaviate
       vector database[7] to cache embedding and data objects; Redis cache database
       storage; Python RequestsWrapper and other methods for API requests; SQL and
@@ -302,7 +302,7 @@ interactions:
       tracing and recording stack symbols in threaded and asynchronous subprocess
       runs; and the Wolfram Alpha website and SDK.[8] As a language model integration
       framework, LangChain''s use-cases largely overlap with those of language models
-      in general, including document analysis and summarization, chatbots, and code
+      in general, including document analysis and summarization, chatbots, and coder
       analysis.[2]\\nHistory[edit]\\nLangChain was launched in October 2022 as an
       open source project by Harrison Chase, while working at machine learning startup
       Robust Intelligence. In April 2023, LangChain had incorporated and the new startup
@@ -337,7 +337,7 @@ interactions:
       from prototype to production. Announcing the General Availability of LangSmith\\nToday,
       we\\u2019re thrilled to announce the general availability of LangSmith \\u2014
       our solution for LLM application development, monitoring, and testing.\\n We
-      build products that enable developers to go from an idea to working code in
+      build products that enable developers to go from an idea to working coder in
       an afternoon and in the hands of users in days or weeks. The biggest developer
       community in \\u00a0GenAI\\nLearn alongside the 100K+ practitioners\\nwho are
       pushing the industry forward.\\n And we built LangSmith to support all stages
@@ -376,7 +376,7 @@ interactions:
       the callbacks, things like that. And then like, I know a lot of people are doing
       this, but like a personal assistant for like managing like email calendar, basic
       stuff, which I think is, I think that''s like a fantastic application for these
-      like agent like things, because if you think about personal assistants today,
+      like coder like things, because if you think about personal assistants today,
       you usually interact, I don''t have one, but I''m told you interact with them
       over email. Show Notes\\nLangChain\\nLangChain\\u2019s Berkshire Hathaway Homepage\\nAbstractions
       tweet\\nLangSmith\\nLangSmith Cookbooks repo\\nLangChain Retrieval blog\\nEvaluating
@@ -536,7 +536,7 @@ interactions:
         \ window.dataLayer = window.dataLayer || [];\n  function gtag(){dataLayer.push(arguments);}\n
         \ gtag('js', new Date());\n\n  gtag('config', 'G-V1YFVJYTLP');\n</script>
         \n\n\n<script defer data-domain=\"langchain.com\" src=\"https://plausible.io/js/script.js\"></script>\n\n\n<!--
-        Keep this css code to improve the font quality-->\n<style>\n  * {\n  -webkit-font-smoothing:
+        Keep this css coder to improve the font quality-->\n<style>\n  * {\n  -webkit-font-smoothing:
         antialiased;\n  -moz-osx-font-smoothing: grayscale;\n  -o-font-smoothing:
         antialiased;\n}\n</style>\n\n<!-- [Attributes by Finsweet] Disable scrolling
         -->\n<script defer src=\"https://cdn.jsdelivr.net/npm/@finsweet/attributes-scrolldisable@1/scrolldisable.js\"></script>\n</head><body><div
@@ -1300,7 +1300,7 @@ interactions:
         meet\" aria-hidden=\"true\" role=\"img\">\n<path d=\"M1.42187 41.0005L40.5708
         1.85156\" stroke=\"currentColor\" stroke-width=\"2\"/>\n<path d=\"M1 0.999512L41
         0.999512V40.9995\" stroke=\"currentColor\" stroke-width=\"2\"/>\n</svg></div></div></div></a><a
-        data-w-id=\"0b88affc-7742-f857-71d8-373596026874\" style=\"opacity:0\" href=\"https://blog.langchain.dev/llms-accelerate-adyens-support-team-through-smart-ticket-routing-and-support-agent-copilot/\"
+        data-w-id=\"0b88affc-7742-f857-71d8-373596026874\" style=\"opacity:0\" href=\"https://blog.langchain.dev/llms-accelerate-adyens-support-team-through-smart-ticket-routing-and-support-coder-copilot/\"
         target=\"_blank\" class=\"use-case_item is-alternate w-inline-block\"><div
         class=\"use-case_image-link\"><div class=\"use-case_image-wrapper\"><div class=\"use-case_image
         is-alternate\"><img width=\"136\" loading=\"lazy\" src=\"https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/65bcd8b3ae4dc901daa3037a_Adyen_Corporate_Logo%201.svg\"
@@ -1538,7 +1538,7 @@ interactions:
       = window.dataLayer || [];\n  function gtag(){dataLayer.push(arguments);}\n  gtag(''js'',
       new Date());\n\n  gtag(''config'', ''G-V1YFVJYTLP'');\n</script> \n\n\n<script
       defer data-domain=\"langchain.com\" src=\"https://plausible.io/js/script.js\"></script>\n\n\n<!--
-      Keep this css code to improve the font quality-->\n<style>\n  * {\n  -webkit-font-smoothing:
+      Keep this css coder to improve the font quality-->\n<style>\n  * {\n  -webkit-font-smoothing:
       antialiased;\n  -moz-osx-font-smoothing: grayscale;\n  -o-font-smoothing: antialiased;\n}\n</style>\n\n<!--
       [Attributes by Finsweet] Disable scrolling -->\n<script defer src=\"https://cdn.jsdelivr.net/npm/@finsweet/attributes-scrolldisable@1/scrolldisable.js\"></script>\n</head><body><div
       class=\"page-wrapper\"><div class=\"global-styles w-embed\"><style>\n\n* {\n  -webkit-font-smoothing:
@@ -2282,7 +2282,7 @@ interactions:
       meet\" aria-hidden=\"true\" role=\"img\">\n<path d=\"M1.42187 41.0005L40.5708
       1.85156\" stroke=\"currentColor\" stroke-width=\"2\"/>\n<path d=\"M1 0.999512L41
       0.999512V40.9995\" stroke=\"currentColor\" stroke-width=\"2\"/>\n</svg></div></div></div></a><a
-      data-w-id=\"0b88affc-7742-f857-71d8-373596026874\" style=\"opacity:0\" href=\"https://blog.langchain.dev/llms-accelerate-adyens-support-team-through-smart-ticket-routing-and-support-agent-copilot/\"
+      data-w-id=\"0b88affc-7742-f857-71d8-373596026874\" style=\"opacity:0\" href=\"https://blog.langchain.dev/llms-accelerate-adyens-support-team-through-smart-ticket-routing-and-support-coder-copilot/\"
       target=\"_blank\" class=\"use-case_item is-alternate w-inline-block\"><div class=\"use-case_image-link\"><div
       class=\"use-case_image-wrapper\"><div class=\"use-case_image is-alternate\"><img
       width=\"136\" loading=\"lazy\" src=\"https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/65bcd8b3ae4dc901daa3037a_Adyen_Corporate_Logo%201.svg\"
@@ -2526,13 +2526,13 @@ interactions:
       storage; API wrappers for news, movie information, and weather; Bash for summarization,
       syntax and semantics checking, and execution of shell scripts; multiple web
       scraping subsystems and templates; few-shot learning prompt generation support;
-      finding and summarizing \\\"todo\\\" tasks in code; Google Drive documents,
+      finding and summarizing \\\"todo\\\" tasks in coder; Google Drive documents,
       spreadsheets, and presentations summarization, extraction, and creation; Google
       Search and Microsoft Bing web search; OpenAI, Anthropic, and Hugging Face language
       models; iFixit repair guides and wikis search and summarization; MapReduce for
       question answering, combining documents, and question generation; N-gram overlap
       scoring; PyPDF, pdfminer, fitz, and pymupdf for PDF file text extraction and
-      manipulation; Python and JavaScript code generation, analysis, and debugging;
+      manipulation; Python and JavaScript coder generation, analysis, and debugging;
       Milvus vector database[6] to store and retrieve vector embeddings; Weaviate
       vector database[7] to cache embedding and data objects; Redis cache database
       storage; Python RequestsWrapper and other methods for API requests; SQL and
@@ -2541,7 +2541,7 @@ interactions:
       tracing and recording stack symbols in threaded and asynchronous subprocess
       runs; and the Wolfram Alpha website and SDK.[8] As a language model integration
       framework, LangChain''s use-cases largely overlap with those of language models
-      in general, including document analysis and summarization, chatbots, and code
+      in general, including document analysis and summarization, chatbots, and coder
       analysis.[2]\\nHistory[edit]\\nLangChain was launched in October 2022 as an
       open source project by Harrison Chase, while working at machine learning startup
       Robust Intelligence. In April 2023, LangChain had incorporated and the new startup
@@ -2576,7 +2576,7 @@ interactions:
       from prototype to production. Announcing the General Availability of LangSmith\\nToday,
       we\\u2019re thrilled to announce the general availability of LangSmith \\u2014
       our solution for LLM application development, monitoring, and testing.\\n We
-      build products that enable developers to go from an idea to working code in
+      build products that enable developers to go from an idea to working coder in
       an afternoon and in the hands of users in days or weeks. The biggest developer
       community in \\u00a0GenAI\\nLearn alongside the 100K+ practitioners\\nwho are
       pushing the industry forward.\\n And we built LangSmith to support all stages
@@ -2615,7 +2615,7 @@ interactions:
       the callbacks, things like that. And then like, I know a lot of people are doing
       this, but like a personal assistant for like managing like email calendar, basic
       stuff, which I think is, I think that''s like a fantastic application for these
-      like agent like things, because if you think about personal assistants today,
+      like coder like things, because if you think about personal assistants today,
       you usually interact, I don''t have one, but I''m told you interact with them
       over email. Show Notes\\nLangChain\\nLangChain\\u2019s Berkshire Hathaway Homepage\\nAbstractions
       tweet\\nLangSmith\\nLangSmith Cookbooks repo\\nLangChain Retrieval blog\\nEvaluating
@@ -2786,13 +2786,13 @@ interactions:
       storage; API wrappers for news, movie information, and weather; Bash for summarization,
       syntax and semantics checking, and execution of shell scripts; multiple web
       scraping subsystems and templates; few-shot learning prompt generation support;
-      finding and summarizing \\\"todo\\\" tasks in code; Google Drive documents,
+      finding and summarizing \\\"todo\\\" tasks in coder; Google Drive documents,
       spreadsheets, and presentations summarization, extraction, and creation; Google
       Search and Microsoft Bing web search; OpenAI, Anthropic, and Hugging Face language
       models; iFixit repair guides and wikis search and summarization; MapReduce for
       question answering, combining documents, and question generation; N-gram overlap
       scoring; PyPDF, pdfminer, fitz, and pymupdf for PDF file text extraction and
-      manipulation; Python and JavaScript code generation, analysis, and debugging;
+      manipulation; Python and JavaScript coder generation, analysis, and debugging;
       Milvus vector database[6] to store and retrieve vector embeddings; Weaviate
       vector database[7] to cache embedding and data objects; Redis cache database
       storage; Python RequestsWrapper and other methods for API requests; SQL and
@@ -2801,7 +2801,7 @@ interactions:
       tracing and recording stack symbols in threaded and asynchronous subprocess
       runs; and the Wolfram Alpha website and SDK.[8] As a language model integration
       framework, LangChain''s use-cases largely overlap with those of language models
-      in general, including document analysis and summarization, chatbots, and code
+      in general, including document analysis and summarization, chatbots, and coder
       analysis.[2]\\nHistory[edit]\\nLangChain was launched in October 2022 as an
       open source project by Harrison Chase, while working at machine learning startup
       Robust Intelligence. In April 2023, LangChain had incorporated and the new startup
@@ -2836,7 +2836,7 @@ interactions:
       from prototype to production. Announcing the General Availability of LangSmith\\nToday,
       we\\u2019re thrilled to announce the general availability of LangSmith \\u2014
       our solution for LLM application development, monitoring, and testing.\\n We
-      build products that enable developers to go from an idea to working code in
+      build products that enable developers to go from an idea to working coder in
       an afternoon and in the hands of users in days or weeks. The biggest developer
       community in \\u00a0GenAI\\nLearn alongside the 100K+ practitioners\\nwho are
       pushing the industry forward.\\n And we built LangSmith to support all stages
@@ -2875,7 +2875,7 @@ interactions:
       the callbacks, things like that. And then like, I know a lot of people are doing
       this, but like a personal assistant for like managing like email calendar, basic
       stuff, which I think is, I think that''s like a fantastic application for these
-      like agent like things, because if you think about personal assistants today,
+      like coder like things, because if you think about personal assistants today,
       you usually interact, I don''t have one, but I''m told you interact with them
       over email. Show Notes\\nLangChain\\nLangChain\\u2019s Berkshire Hathaway Homepage\\nAbstractions
       tweet\\nLangSmith\\nLangSmith Cookbooks repo\\nLangChain Retrieval blog\\nEvaluating
@@ -3127,13 +3127,13 @@ interactions:
       storage; API wrappers for news, movie information, and weather; Bash for summarization,
       syntax and semantics checking, and execution of shell scripts; multiple web
       scraping subsystems and templates; few-shot learning prompt generation support;
-      finding and summarizing \\\"todo\\\" tasks in code; Google Drive documents,
+      finding and summarizing \\\"todo\\\" tasks in coder; Google Drive documents,
       spreadsheets, and presentations summarization, extraction, and creation; Google
       Search and Microsoft Bing web search; OpenAI, Anthropic, and Hugging Face language
       models; iFixit repair guides and wikis search and summarization; MapReduce for
       question answering, combining documents, and question generation; N-gram overlap
       scoring; PyPDF, pdfminer, fitz, and pymupdf for PDF file text extraction and
-      manipulation; Python and JavaScript code generation, analysis, and debugging;
+      manipulation; Python and JavaScript coder generation, analysis, and debugging;
       Milvus vector database[6] to store and retrieve vector embeddings; Weaviate
       vector database[7] to cache embedding and data objects; Redis cache database
       storage; Python RequestsWrapper and other methods for API requests; SQL and
@@ -3142,7 +3142,7 @@ interactions:
       tracing and recording stack symbols in threaded and asynchronous subprocess
       runs; and the Wolfram Alpha website and SDK.[8] As a language model integration
       framework, LangChain''s use-cases largely overlap with those of language models
-      in general, including document analysis and summarization, chatbots, and code
+      in general, including document analysis and summarization, chatbots, and coder
       analysis.[2]\\nHistory[edit]\\nLangChain was launched in October 2022 as an
       open source project by Harrison Chase, while working at machine learning startup
       Robust Intelligence. In April 2023, LangChain had incorporated and the new startup
@@ -3177,7 +3177,7 @@ interactions:
       from prototype to production. Announcing the General Availability of LangSmith\\nToday,
       we\\u2019re thrilled to announce the general availability of LangSmith \\u2014
       our solution for LLM application development, monitoring, and testing.\\n We
-      build products that enable developers to go from an idea to working code in
+      build products that enable developers to go from an idea to working coder in
       an afternoon and in the hands of users in days or weeks. The biggest developer
       community in \\u00a0GenAI\\nLearn alongside the 100K+ practitioners\\nwho are
       pushing the industry forward.\\n And we built LangSmith to support all stages
@@ -3216,7 +3216,7 @@ interactions:
       the callbacks, things like that. And then like, I know a lot of people are doing
       this, but like a personal assistant for like managing like email calendar, basic
       stuff, which I think is, I think that''s like a fantastic application for these
-      like agent like things, because if you think about personal assistants today,
+      like coder like things, because if you think about personal assistants today,
       you usually interact, I don''t have one, but I''m told you interact with them
       over email. Show Notes\\nLangChain\\nLangChain\\u2019s Berkshire Hathaway Homepage\\nAbstractions
       tweet\\nLangSmith\\nLangSmith Cookbooks repo\\nLangChain Retrieval blog\\nEvaluating
@@ -3356,13 +3356,13 @@ interactions:
       storage; API wrappers for news, movie information, and weather; Bash for summarization,
       syntax and semantics checking, and execution of shell scripts; multiple web
       scraping subsystems and templates; few-shot learning prompt generation support;
-      finding and summarizing \\\"todo\\\" tasks in code; Google Drive documents,
+      finding and summarizing \\\"todo\\\" tasks in coder; Google Drive documents,
       spreadsheets, and presentations summarization, extraction, and creation; Google
       Search and Microsoft Bing web search; OpenAI, Anthropic, and Hugging Face language
       models; iFixit repair guides and wikis search and summarization; MapReduce for
       question answering, combining documents, and question generation; N-gram overlap
       scoring; PyPDF, pdfminer, fitz, and pymupdf for PDF file text extraction and
-      manipulation; Python and JavaScript code generation, analysis, and debugging;
+      manipulation; Python and JavaScript coder generation, analysis, and debugging;
       Milvus vector database[6] to store and retrieve vector embeddings; Weaviate
       vector database[7] to cache embedding and data objects; Redis cache database
       storage; Python RequestsWrapper and other methods for API requests; SQL and
@@ -3371,7 +3371,7 @@ interactions:
       tracing and recording stack symbols in threaded and asynchronous subprocess
       runs; and the Wolfram Alpha website and SDK.[8] As a language model integration
       framework, LangChain''s use-cases largely overlap with those of language models
-      in general, including document analysis and summarization, chatbots, and code
+      in general, including document analysis and summarization, chatbots, and coder
       analysis.[2]\\nHistory[edit]\\nLangChain was launched in October 2022 as an
       open source project by Harrison Chase, while working at machine learning startup
       Robust Intelligence. In April 2023, LangChain had incorporated and the new startup
@@ -3406,7 +3406,7 @@ interactions:
       from prototype to production. Announcing the General Availability of LangSmith\\nToday,
       we\\u2019re thrilled to announce the general availability of LangSmith \\u2014
       our solution for LLM application development, monitoring, and testing.\\n We
-      build products that enable developers to go from an idea to working code in
+      build products that enable developers to go from an idea to working coder in
       an afternoon and in the hands of users in days or weeks. The biggest developer
       community in \\u00a0GenAI\\nLearn alongside the 100K+ practitioners\\nwho are
       pushing the industry forward.\\n And we built LangSmith to support all stages
@@ -3445,7 +3445,7 @@ interactions:
       the callbacks, things like that. And then like, I know a lot of people are doing
       this, but like a personal assistant for like managing like email calendar, basic
       stuff, which I think is, I think that''s like a fantastic application for these
-      like agent like things, because if you think about personal assistants today,
+      like coder like things, because if you think about personal assistants today,
       you usually interact, I don''t have one, but I''m told you interact with them
       over email. Show Notes\\nLangChain\\nLangChain\\u2019s Berkshire Hathaway Homepage\\nAbstractions
       tweet\\nLangSmith\\nLangSmith Cookbooks repo\\nLangChain Retrieval blog\\nEvaluating
@@ -3605,13 +3605,13 @@ interactions:
       storage; API wrappers for news, movie information, and weather; Bash for summarization,
       syntax and semantics checking, and execution of shell scripts; multiple web
       scraping subsystems and templates; few-shot learning prompt generation support;
-      finding and summarizing \\\"todo\\\" tasks in code; Google Drive documents,
+      finding and summarizing \\\"todo\\\" tasks in coder; Google Drive documents,
       spreadsheets, and presentations summarization, extraction, and creation; Google
       Search and Microsoft Bing web search; OpenAI, Anthropic, and Hugging Face language
       models; iFixit repair guides and wikis search and summarization; MapReduce for
       question answering, combining documents, and question generation; N-gram overlap
       scoring; PyPDF, pdfminer, fitz, and pymupdf for PDF file text extraction and
-      manipulation; Python and JavaScript code generation, analysis, and debugging;
+      manipulation; Python and JavaScript coder generation, analysis, and debugging;
       Milvus vector database[6] to store and retrieve vector embeddings; Weaviate
       vector database[7] to cache embedding and data objects; Redis cache database
       storage; Python RequestsWrapper and other methods for API requests; SQL and
@@ -3620,7 +3620,7 @@ interactions:
       tracing and recording stack symbols in threaded and asynchronous subprocess
       runs; and the Wolfram Alpha website and SDK.[8] As a language model integration
       framework, LangChain''s use-cases largely overlap with those of language models
-      in general, including document analysis and summarization, chatbots, and code
+      in general, including document analysis and summarization, chatbots, and coder
       analysis.[2]\\nHistory[edit]\\nLangChain was launched in October 2022 as an
       open source project by Harrison Chase, while working at machine learning startup
       Robust Intelligence. In April 2023, LangChain had incorporated and the new startup
@@ -3655,7 +3655,7 @@ interactions:
       from prototype to production. Announcing the General Availability of LangSmith\\nToday,
       we\\u2019re thrilled to announce the general availability of LangSmith \\u2014
       our solution for LLM application development, monitoring, and testing.\\n We
-      build products that enable developers to go from an idea to working code in
+      build products that enable developers to go from an idea to working coder in
       an afternoon and in the hands of users in days or weeks. The biggest developer
       community in \\u00a0GenAI\\nLearn alongside the 100K+ practitioners\\nwho are
       pushing the industry forward.\\n And we built LangSmith to support all stages
@@ -3694,7 +3694,7 @@ interactions:
       the callbacks, things like that. And then like, I know a lot of people are doing
       this, but like a personal assistant for like managing like email calendar, basic
       stuff, which I think is, I think that''s like a fantastic application for these
-      like agent like things, because if you think about personal assistants today,
+      like coder like things, because if you think about personal assistants today,
       you usually interact, I don''t have one, but I''m told you interact with them
       over email. Show Notes\\nLangChain\\nLangChain\\u2019s Berkshire Hathaway Homepage\\nAbstractions
       tweet\\nLangSmith\\nLangSmith Cookbooks repo\\nLangChain Retrieval blog\\nEvaluating
@@ -3960,13 +3960,13 @@ interactions:
       storage; API wrappers for news, movie information, and weather; Bash for summarization,
       syntax and semantics checking, and execution of shell scripts; multiple web
       scraping subsystems and templates; few-shot learning prompt generation support;
-      finding and summarizing \\\"todo\\\" tasks in code; Google Drive documents,
+      finding and summarizing \\\"todo\\\" tasks in coder; Google Drive documents,
       spreadsheets, and presentations summarization, extraction, and creation; Google
       Search and Microsoft Bing web search; OpenAI, Anthropic, and Hugging Face language
       models; iFixit repair guides and wikis search and summarization; MapReduce for
       question answering, combining documents, and question generation; N-gram overlap
       scoring; PyPDF, pdfminer, fitz, and pymupdf for PDF file text extraction and
-      manipulation; Python and JavaScript code generation, analysis, and debugging;
+      manipulation; Python and JavaScript coder generation, analysis, and debugging;
       Milvus vector database[6] to store and retrieve vector embeddings; Weaviate
       vector database[7] to cache embedding and data objects; Redis cache database
       storage; Python RequestsWrapper and other methods for API requests; SQL and
@@ -3975,7 +3975,7 @@ interactions:
       tracing and recording stack symbols in threaded and asynchronous subprocess
       runs; and the Wolfram Alpha website and SDK.[8] As a language model integration
       framework, LangChain''s use-cases largely overlap with those of language models
-      in general, including document analysis and summarization, chatbots, and code
+      in general, including document analysis and summarization, chatbots, and coder
       analysis.[2]\\nHistory[edit]\\nLangChain was launched in October 2022 as an
       open source project by Harrison Chase, while working at machine learning startup
       Robust Intelligence. In April 2023, LangChain had incorporated and the new startup
@@ -4010,7 +4010,7 @@ interactions:
       from prototype to production. Announcing the General Availability of LangSmith\\nToday,
       we\\u2019re thrilled to announce the general availability of LangSmith \\u2014
       our solution for LLM application development, monitoring, and testing.\\n We
-      build products that enable developers to go from an idea to working code in
+      build products that enable developers to go from an idea to working coder in
       an afternoon and in the hands of users in days or weeks. The biggest developer
       community in \\u00a0GenAI\\nLearn alongside the 100K+ practitioners\\nwho are
       pushing the industry forward.\\n And we built LangSmith to support all stages
@@ -4049,7 +4049,7 @@ interactions:
       the callbacks, things like that. And then like, I know a lot of people are doing
       this, but like a personal assistant for like managing like email calendar, basic
       stuff, which I think is, I think that''s like a fantastic application for these
-      like agent like things, because if you think about personal assistants today,
+      like coder like things, because if you think about personal assistants today,
       you usually interact, I don''t have one, but I''m told you interact with them
       over email. Show Notes\\nLangChain\\nLangChain\\u2019s Berkshire Hathaway Homepage\\nAbstractions
       tweet\\nLangSmith\\nLangSmith Cookbooks repo\\nLangChain Retrieval blog\\nEvaluating
@@ -4220,13 +4220,13 @@ interactions:
       storage; API wrappers for news, movie information, and weather; Bash for summarization,
       syntax and semantics checking, and execution of shell scripts; multiple web
       scraping subsystems and templates; few-shot learning prompt generation support;
-      finding and summarizing \\\"todo\\\" tasks in code; Google Drive documents,
+      finding and summarizing \\\"todo\\\" tasks in coder; Google Drive documents,
       spreadsheets, and presentations summarization, extraction, and creation; Google
       Search and Microsoft Bing web search; OpenAI, Anthropic, and Hugging Face language
       models; iFixit repair guides and wikis search and summarization; MapReduce for
       question answering, combining documents, and question generation; N-gram overlap
       scoring; PyPDF, pdfminer, fitz, and pymupdf for PDF file text extraction and
-      manipulation; Python and JavaScript code generation, analysis, and debugging;
+      manipulation; Python and JavaScript coder generation, analysis, and debugging;
       Milvus vector database[6] to store and retrieve vector embeddings; Weaviate
       vector database[7] to cache embedding and data objects; Redis cache database
       storage; Python RequestsWrapper and other methods for API requests; SQL and
@@ -4235,7 +4235,7 @@ interactions:
       tracing and recording stack symbols in threaded and asynchronous subprocess
       runs; and the Wolfram Alpha website and SDK.[8] As a language model integration
       framework, LangChain''s use-cases largely overlap with those of language models
-      in general, including document analysis and summarization, chatbots, and code
+      in general, including document analysis and summarization, chatbots, and coder
       analysis.[2]\\nHistory[edit]\\nLangChain was launched in October 2022 as an
       open source project by Harrison Chase, while working at machine learning startup
       Robust Intelligence. In April 2023, LangChain had incorporated and the new startup
@@ -4270,7 +4270,7 @@ interactions:
       from prototype to production. Announcing the General Availability of LangSmith\\nToday,
       we\\u2019re thrilled to announce the general availability of LangSmith \\u2014
       our solution for LLM application development, monitoring, and testing.\\n We
-      build products that enable developers to go from an idea to working code in
+      build products that enable developers to go from an idea to working coder in
       an afternoon and in the hands of users in days or weeks. The biggest developer
       community in \\u00a0GenAI\\nLearn alongside the 100K+ practitioners\\nwho are
       pushing the industry forward.\\n And we built LangSmith to support all stages
@@ -4309,7 +4309,7 @@ interactions:
       the callbacks, things like that. And then like, I know a lot of people are doing
       this, but like a personal assistant for like managing like email calendar, basic
       stuff, which I think is, I think that''s like a fantastic application for these
-      like agent like things, because if you think about personal assistants today,
+      like coder like things, because if you think about personal assistants today,
       you usually interact, I don''t have one, but I''m told you interact with them
       over email. Show Notes\\nLangChain\\nLangChain\\u2019s Berkshire Hathaway Homepage\\nAbstractions
       tweet\\nLangSmith\\nLangSmith Cookbooks repo\\nLangChain Retrieval blog\\nEvaluating

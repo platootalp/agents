@@ -94,8 +94,8 @@ class MyTool(BaseTool):
 uv run python examples/tools_example.py
 uv run python examples/llm_integration_example.py
 
-# Run specific agent
-uv run python framework/core/agents/agent.py
+# Run specific coder
+uv run python framework/core/agents/coder.py
 
 # Run tests
 uv run pytest test/

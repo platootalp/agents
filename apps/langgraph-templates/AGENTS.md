@@ -62,7 +62,7 @@ class State(TypedDict):
 ### ReAct Template
 ```python
 # graph.py
-builder.add_node("agent", call_model)
+builder.add_node("coder", call_model)
 builder.add_node("tools", ToolNode(tools))
 ```
 

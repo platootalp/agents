@@ -1,4 +1,4 @@
-"""Define a custom Reasoning and Action agent.
+"""Define a custom Reasoning and Action coder.
 
 Works with a chat model with tool calling support.
 """
@@ -24,7 +24,7 @@ from .utils import load_chat_model
 async def call_model(
         state: State, config: RunnableConfig
 ) -> Dict[str, List[AIMessage]]:
-    """Call the LLM powering our "agent".
+    """Call the LLM powering our "coder".
 
     This function prepares the prompt, initializes the model, and processes the response.
 
@@ -40,7 +40,7 @@ async def call_model(
     # Initialize the model with tool binding. Change the model or add more tools here.
     model = ChatTongyi(model=configuration.model, api_key=configuration.api_key)
 
-    # Format the system prompt. Customize this to change the agent's behavior.
+    # Format the system prompt. Customize this to change the coder's behavior.
     system_message = configuration.system_prompt.format(
         system_time=datetime.now(tz=timezone.utc).isoformat()
     )

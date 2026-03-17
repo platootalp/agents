@@ -21,7 +21,7 @@ def create_skill_creator_agent():
     创建技能创建器代理
 
     Returns:
-        agent: 配置好的技能创建器代理
+        code: 配置好的技能创建器代理
     """
     # 定义系统提示
     system_prompt = """

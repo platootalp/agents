@@ -5,7 +5,7 @@ using the standard McpAgent with custom headers for API key authentication.
 
 Usage:
     export CONTEXT7_API_KEY="your-api-key"
-    uv run python learn/agent/context7_mcp_example.py
+    uv run python learn/coder/context7_mcp_example.py
 """
 
 import asyncio
@@ -34,7 +34,7 @@ async def context7_example():
         return
 
     try:
-        # Create agent with custom headers for Context7
+        # Create coder with custom headers for Context7
         print("\n1️⃣  Creating McpAgent with Context7 configuration...")
         agent = McpAgent(
             name="Context7Agent",
@@ -65,7 +65,7 @@ async def context7_example():
         print("   Query: Langgraph包括哪些核心组件?'")
         print("   Response: ", end="", flush=True)
 
-        # async for chunk in agent.astream("Langgraph包括哪些核心组件"):
+        # async for chunk in coder.astream("Langgraph包括哪些核心组件"):
         #     if chunk.reasoning:
         #         print(f"{chunk.reasoning}", end="", flush=True)
         #     if chunk.content:

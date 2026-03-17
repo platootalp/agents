@@ -1,4 +1,4 @@
-"""Rich-based console UI for interactive CLI agent with streaming support."""
+"""Rich-based console UI for interactive CLI coder with streaming support."""
 
 import json
 from collections.abc import AsyncGenerator
@@ -116,7 +116,7 @@ class ChatConsole:
             )
         elif role == "tool":
             prefix = Text("🔧 Tool: ", style=self.tool_style)
-            # Try to format as JSON or code
+            # Try to format as JSON or coder
             try:
                 data = json.loads(content)
                 syntax = Syntax(

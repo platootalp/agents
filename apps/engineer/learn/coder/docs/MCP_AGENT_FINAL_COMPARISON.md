@@ -130,9 +130,9 @@ class MCPToolManager:
 
 # 构建 StateGraph
 builder = StateGraph(State)
-builder.add_node("agent", agent_node)
+builder.add_node("coder", agent_node)
 builder.add_node("tools", ToolNode(tools))
-builder.add_conditional_edges("agent", route_agent_output)
+builder.add_conditional_edges("coder", route_agent_output)
 ```
 
 ### 4️⃣ LangGraph v2 官方适配器 ⭐ (446 行)
@@ -149,9 +149,9 @@ class LangGraphMcpAgentV2:
 
         # 标准 LangGraph 构建
         builder = StateGraph(State)
-        builder.add_node("agent", AgentNode())
+        builder.add_node("coder", AgentNode())
         builder.add_node("tools", ToolNode(self._tools))
-        builder.add_conditional_edges("agent", tools_condition)
+        builder.add_conditional_edges("coder", tools_condition)
         self._graph = builder.compile()
 ```
 

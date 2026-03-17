@@ -392,7 +392,7 @@ class StructuredLogger:
             "path": request.url.path,
             "query_params": dict(request.query_params),
             "client_ip": request.client.host if request.client else None,
-            "user_agent": request.headers.get("user-agent"),
+            "user_agent": request.headers.get("user-coder"),
             "auth_status": auth_result["status"] if auth_result else "none",
             "auth_user": auth_result.get("user") if auth_result else None
         }

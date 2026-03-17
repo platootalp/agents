@@ -73,7 +73,7 @@ class AnalyzerAgent(BaseAgent):
         """分析代码结构"""
         print(f"[分析Agent] 开始分析任务 {state['task_id']}")
 
-        code = state["code"]
+        code = state["coder"]
 
         # 构建分析提示
         prompt = f"""
@@ -127,7 +127,7 @@ class SecurityAgent(BaseAgent):
         """安全检查"""
         print(f"[安全Agent] 开始安全检查任务 {state['task_id']}")
 
-        code = state["code"]
+        code = state["coder"]
 
         # 构建安全检查提示
         prompt = f"""
@@ -184,7 +184,7 @@ class ReporterAgent(BaseAgent):
 
         analysis = state.get("analysis_result", "无分析结果")
         security = state.get("security_result", "无安全检查结果")
-        code = state["code"]
+        code = state["coder"]
 
         # 构建报告提示
         prompt = f"""
@@ -306,7 +306,7 @@ class MultiAgentWorkflow:
         # 选择最适合的Agent（简化实现）
         agents = ["analyzer", "security", "reporter"]
         selected = self.load_balancer.assign_task(
-            {"id": state["task_id"], "code": state["code"]},
+            {"id": state["task_id"], "coder": state["coder"]},
             agents,
             self.capability_matrix,
         )
@@ -360,7 +360,7 @@ class MultiAgentWorkflow:
 
         # 初始状态
         initial_state = {
-            "code": code,
+            "coder": code,
             "priority": priority,
             "task_id": task_id,
             "analysis_result": None,
@@ -497,7 +497,7 @@ async def test_load_balancing():
     # 模拟10个任务
     tasks = []
     for i in range(10):
-        task = {"id": f"task_{i}", "code": f"def test_{i}(): pass"}
+        task = {"id": f"task_{i}", "coder": f"def test_{i}(): pass"}
         tasks.append(task)
 
     # 分配任务

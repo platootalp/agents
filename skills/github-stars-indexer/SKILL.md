@@ -109,14 +109,14 @@ python scripts/fetch_github_stars.py \
 
 ```bash
 # No parameters - simplest way
-cd ../../src/agent
+cd ../../src/coder
 python github_stars_agent.py
 
 # With parameters
 python github_stars_agent.py --min-stars 100 --output my_stars.md
 
-# In code
-from src.agent.github_agent import run_agent
+# In coder
+from src.coder.github_agent import run_agent
 result = run_agent(min_stars=100)
 ```
 

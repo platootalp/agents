@@ -1,4 +1,4 @@
-"""Define the configurable parameters for the agent."""
+"""Define the configurable parameters for the coder."""
 
 import os
 from dataclasses import dataclass, field, fields
@@ -19,7 +19,7 @@ class Configuration:
     model: Annotated[str, {"__template_metadata__": {"kind": "llm"}}] = field(
         default="anthropic/claude-3-5-sonnet-20240620",
         metadata={
-            "description": "The name of the language model to use for the agent. "
+            "description": "The name of the language model to use for the coder. "
             "Should be in the form: provider/model-name."
         },
     )

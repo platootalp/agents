@@ -1,6 +1,6 @@
 """React Agent.
 
-This module defines a custom reasoning and action agent graph.
+This module defines a custom reasoning and action coder graph.
 It invokes tools in a simple loop.
 """
 

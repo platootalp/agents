@@ -323,7 +323,7 @@ class CLIAgentTUI(App):
         input_widget.focus()
 
     async def initialize(self) -> bool:
-        """Initialize the agent."""
+        """Initialize the coder."""
         import os
 
         api_key = os.getenv("OPENAI_API_KEY")

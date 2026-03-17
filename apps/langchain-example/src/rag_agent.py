@@ -75,7 +75,7 @@ def load_web_document(url: str) -> List[Document]:
 
 
 def create_retrieve_tool(vector_store: InMemoryVectorStore):
-    """Create a retrieval tool for the RAG agent.
+    """Create a retrieval tool for the RAG coder.
 
     The tool retrieves relevant documents and returns both
     serialized content and the retrieved documents.
@@ -101,10 +101,10 @@ def create_llm():
 
 
 def create_rag_agent(vector_store: InMemoryVectorStore):
-    """Create a RAG agent with retrieval tool.
+    """Create a RAG coder with retrieval tool.
 
-    Note: This uses a simplified agent pattern. For production use,
-    consider using langgraph for more complex agent workflows.
+    Note: This uses a simplified coder pattern. For production use,
+    consider using langgraph for more complex coder workflows.
     """
     from langchain.agents import AgentExecutor, create_tool_calling_agent
     from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
@@ -113,7 +113,7 @@ def create_rag_agent(vector_store: InMemoryVectorStore):
     retrieve_tool = create_retrieve_tool(vector_store)
     tools = [retrieve_tool]
 
-    # Create prompt with system message and agent scratchpad
+    # Create prompt with system message and coder scratchpad
     prompt = ChatPromptTemplate.from_messages(
         [
             (
@@ -127,7 +127,7 @@ def create_rag_agent(vector_store: InMemoryVectorStore):
         ]
     )
 
-    # Create agent
+    # Create coder
     agent = create_tool_calling_agent(llm, tools, prompt)
     agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
 
@@ -135,7 +135,7 @@ def create_rag_agent(vector_store: InMemoryVectorStore):
 
 
 def run_rag_agent(agent, query: str):
-    """Run the RAG agent with a query."""
+    """Run the RAG coder with a query."""
     print(f"\n{'=' * 60}")
     print(f"RAG AGENT QUERY: {query}")
     print(f"{'=' * 60}\n")
@@ -154,7 +154,7 @@ def run_rag_agent(agent, query: str):
 
 
 def create_rag_chain(vector_store: InMemoryVectorStore):
-    """Create a simple RAG chain without agent overhead.
+    """Create a simple RAG chain without coder overhead.
 
     This is faster and more efficient for simple Q&A tasks.
     """
@@ -235,7 +235,7 @@ def main():
 
     queries = [
         "What is task decomposition?",
-        "What are the main components of an autonomous agent?",
+        "What are the main components of an autonomous coder?",
     ]
 
     for query in queries:

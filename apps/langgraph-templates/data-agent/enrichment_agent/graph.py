@@ -1,4 +1,4 @@
-"""Define a data enrichment agent.
+"""Define a data enrichment coder.
 
 Works with a chat model with tool calling support.
 """
@@ -64,7 +64,7 @@ async def call_agent_model(
                 info = tool_call["args"]
                 break
     if info is not None:
-        # The agent is submitting their answer;
+        # The coder is submitting their answer;
         # ensure it isn't erroneously attempting to simultaneously perform research
         response.tool_calls = [
             next(tc for tc in response.tool_calls if tc["name"] == "Info")
@@ -101,7 +101,7 @@ class InfoIsSatisfactory(BaseModel):
 async def reflect(
     state: State, *, config: Optional[RunnableConfig] = None
 ) -> Dict[str, Any]:
-    """Validate the quality of the data enrichment agent's output.
+    """Validate the quality of the data enrichment coder's output.
 
     This asynchronous function performs the following steps:
     1. Prepares the initial prompt using the main prompt template.
@@ -163,19 +163,19 @@ If you don't think it is good, you should be very specific about what could be i
 def route_after_agent(
     state: State,
 ) -> Literal["reflect", "tools", "call_agent_model", "__end__"]:
-    """Schedule the next node after the agent's action.
+    """Schedule the next node after the coder's action.
 
     This function determines the next step in the research process based on the
     last message in the state. It handles three main scenarios:
 
     1. Error recovery: If the last message is unexpectedly not an AIMessage.
-    2. Info submission: If the agent has called the "Info" tool to submit findings.
-    3. Continued research: If the agent has called any other tool.
+    2. Info submission: If the coder has called the "Info" tool to submit findings.
+    3. Continued research: If the coder has called any other tool.
     """
     last_message = state.messages[-1]
 
-    # "If for some reason the last message is not an AIMessage (due to a bug or unexpected behavior elsewhere in the code),
-    # it ensures the system doesn't crash but instead tries to recover by calling the agent model again.
+    # "If for some reason the last message is not an AIMessage (due to a bug or unexpected behavior elsewhere in the coder),
+    # it ensures the system doesn't crash but instead tries to recover by calling the coder model again.
     if not isinstance(last_message, AIMessage):
         return "call_agent_model"
     # If the "Into" tool was called, then the model provided its extraction output. Reflect on the result

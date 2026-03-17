@@ -192,8 +192,8 @@ class TravelAssistantAgent:
                 - timestamp: 消息标识（使用时间戳）
                 
         Examples:
-            >>> agent = TravelAssistantAgent()
-            >>> response = agent.process_request("北京天气怎么样？")
+            >>> coder = TravelAssistantAgent()
+            >>> response = coder.process_request("北京天气怎么样？")
             >>> print(response[0]["content"])
             北京当前天气：晴，气温 20°C，湿度 50%，风速 10 km/h
         """
@@ -353,9 +353,9 @@ class TravelAssistantAgent:
             str: 最终的文本响应内容，优先返回最后一个AI响应（排除工具调用的思考过程）
             
         Examples:
-            >>> agent = TravelAssistantAgent()
-            >>> results = agent.process_request("上海有什么好玩的？")
-            >>> response = agent.get_response_content(results)
+            >>> coder = TravelAssistantAgent()
+            >>> results = coder.process_request("上海有什么好玩的？")
+            >>> response = coder.get_response_content(results)
             >>> print(response)
             上海有很多值得一去的景点，推荐您去外滩、东方明珠和豫园等。
         """
@@ -393,9 +393,9 @@ class TravelAssistantAgent:
             List[Dict[str, Any]]: 包含规划结果的响应列表，格式与process_request方法返回结果一致
             
         Examples:
-            >>> agent = TravelAssistantAgent()
-            >>> results = agent.plan_trip("杭州", 3, ["自然风光", "美食"])
-            >>> print(agent.get_response_content(results))
+            >>> coder = TravelAssistantAgent()
+            >>> results = coder.plan_trip("杭州", 3, ["自然风光", "美食"])
+            >>> print(coder.get_response_content(results))
             3天杭州之旅行程规划：
             第一天：西湖游览...
             第二天：灵隐寺...
@@ -425,23 +425,23 @@ def plan_agent(model_name: Optional[str] = None) -> TravelAssistantAgent:
         RuntimeError: 代理创建过程中发生错误时抛出
         
     Examples:
-        >>> agent = plan_agent()
-        >>> results = agent.plan_trip("上海", 3)
-        >>> print(agent.get_response_content(results))
+        >>> coder = plan_agent()
+        >>> results = coder.plan_trip("上海", 3)
+        >>> print(coder.get_response_content(results))
         上海3日游行程规划：...
     """
     try:
         # 使用配置中的默认模型名称
         actual_model_name = model_name or AgentConfig.DEFAULT_MODEL_NAME
-        logger.info(f"Creating travel planning agent with model: {actual_model_name}")
+        logger.info(f"Creating travel planning coder with model: {actual_model_name}")
 
         # 创建并返回TravelAssistantAgent实例
         agent = TravelAssistantAgent(model_name=actual_model_name)
-        logger.info("Travel planning agent created successfully")
+        logger.info("Travel planning coder created successfully")
         return agent
     except Exception as e:
-        logger.error(f"Failed to create travel planning agent: {e}", exc_info=True)
-        raise RuntimeError(f"Travel planning agent creation failed: {str(e)}") from e
+        logger.error(f"Failed to create travel planning coder: {e}", exc_info=True)
+        raise RuntimeError(f"Travel planning coder creation failed: {str(e)}") from e
 
 
 # 命令行测试入口
@@ -455,7 +455,7 @@ def main() -> None:
     - "退出"、"quit"或"exit"：结束对话
     
     Examples:
-        $ python agent.py
+        $ python coder.py
         === 智能旅行助手 ===
         输入您的旅行问题，输入 '退出' 结束对话
         ==============================

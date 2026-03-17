@@ -9,7 +9,7 @@ from typing import Callable
 
 # Define skill structure
 class Skill(TypedDict):
-    """A skill that can be progressively disclosed to the agent."""
+    """A skill that can be progressively disclosed to the coder."""
     name: str
     description: str
     content: str
@@ -145,7 +145,7 @@ ORDER BY units_to_reorder DESC;
 # Create skill loading tool
 @tool
 def load_skill(skill_name: str) -> str:
-    """Load the full content of a skill into the agent's context.
+    """Load the full content of a skill into the coder's context.
 
     Use this when you need detailed information about how to handle a specific
     type of request. This will provide you with comprehensive instructions,
@@ -207,7 +207,7 @@ class SkillMiddleware(AgentMiddleware):
 from langchain_openai import ChatOpenAI
 model = ChatOpenAI(model="gpt-4")
 
-# Create the agent with skill support
+# Create the coder with skill support
 agent = create_agent(
     model,
     system_prompt=(

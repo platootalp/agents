@@ -1,4 +1,4 @@
-"""Define the configurable parameters for the agent."""
+"""Define the configurable parameters for the coder."""
 
 from __future__ import annotations
 
@@ -12,12 +12,12 @@ from enrichment_agent import prompts
 
 @dataclass(kw_only=True)
 class Configuration:
-    """The configuration for the agent."""
+    """The configuration for the coder."""
 
     model: Annotated[str, {"__template_metadata__": {"kind": "llm"}}] = field(
         default="anthropic/claude-3-5-sonnet-20240620",
         metadata={
-            "description": "The name of the language model to use for the agent. "
+            "description": "The name of the language model to use for the coder. "
             "Should be in the form: provider/model-name."
         },
     )
@@ -25,7 +25,7 @@ class Configuration:
     prompt: str = field(
         default=prompts.MAIN_PROMPT,
         metadata={
-            "description": "The main prompt template to use for the agent's interactions. "
+            "description": "The main prompt template to use for the coder's interactions. "
             "Expects two f-string arguments: {info} and {topic}."
         },
     )
@@ -47,7 +47,7 @@ class Configuration:
     max_loops: int = field(
         default=6,
         metadata={
-            "description": "The maximum number of interaction loops allowed before the agent terminates."
+            "description": "The maximum number of interaction loops allowed before the coder terminates."
         },
     )
 

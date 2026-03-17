@@ -1,7 +1,7 @@
-"""LangGraphMcpAgent - An MCP agent built with LangGraph.
+"""LangGraphMcpAgent - An MCP coder built with LangGraph.
 
-This module provides an MCP agent using LangGraph's state machine approach.
-LangGraph offers more control over agent workflow compared to AgentExecutor:
+This module provides an MCP coder using LangGraph's state machine approach.
+LangGraph offers more control over coder workflow compared to AgentExecutor:
 - Explicit state management
 - Conditional routing
 - Human-in-the-loop support
@@ -50,7 +50,7 @@ from mcp.client.stdio import stdio_client
 
 @dataclass
 class InputState:
-    """Input state for the agent.
+    """Input state for the coder.
 
     This is the minimal interface for starting a conversation.
     """
@@ -61,7 +61,7 @@ class InputState:
 
 @dataclass
 class State(InputState):
-    """Complete agent state.
+    """Complete coder state.
 
     Extends InputState with additional managed fields.
     """
@@ -231,7 +231,7 @@ def create_tools_node(tools: List[Any]) -> ToolNode:
 
 
 def route_agent_output(state: State) -> Literal["__end__", "tools"]:
-    """Route based on agent's output.
+    """Route based on coder's output.
 
     Args:
         state: Current state
@@ -262,7 +262,7 @@ def create_mcp_graph(
     model: Optional[str] = None,
     temperature: float = 0.0,
 ) -> StateGraph:
-    """Create the MCP agent graph.
+    """Create the MCP coder graph.
 
     Args:
         tools: List of LangChain tools from MCP
@@ -280,20 +280,20 @@ def create_mcp_graph(
     builder = StateGraph(State, input=InputState)
 
     # Add nodes
-    builder.add_node("agent", agent_node)
+    builder.add_node("coder", agent_node)
     builder.add_node("tools", tools_node)
 
     # Set entry point
-    builder.add_edge("__start__", "agent")
+    builder.add_edge("__start__", "coder")
 
-    # Add conditional edges from agent
+    # Add conditional edges from coder
     builder.add_conditional_edges(
-        "agent",
+        "coder",
         route_agent_output,
     )
 
-    # Tools always go back to agent
-    builder.add_edge("tools", "agent")
+    # Tools always go back to coder
+    builder.add_edge("tools", "coder")
 
     # Compile graph
     return builder.compile()
@@ -309,18 +309,18 @@ class LangGraphMcpAgent:
 
     Example:
         # Initialize with MCP server
-        agent = LangGraphMcpAgent(
+        coder = LangGraphMcpAgent(
             args=["mcp_server.py"],
         )
 
         # Run synchronously
-        result = agent.invoke("What is 125 * 301?")
+        result = coder.invoke("What is 125 * 301?")
 
         # Run asynchronously
-        result = await agent.ainvoke("Tell me a story")
+        result = await coder.ainvoke("Tell me a story")
 
         # Stream responses
-        async for chunk in agent.astream("Hello"):
+        async for chunk in coder.astream("Hello"):
             print(chunk.content, end="")
     """
 
@@ -335,7 +335,7 @@ class LangGraphMcpAgent:
         args: Optional[List[str]] = None,
         env: Optional[Dict[str, str]] = None,
     ):
-        """Initialize the LangGraph MCP agent.
+        """Initialize the LangGraph MCP coder.
 
         Args:
             name: Agent name
@@ -380,7 +380,7 @@ class LangGraphMcpAgent:
         )
 
     def invoke(self, input: str) -> str:
-        """Run agent synchronously.
+        """Run coder synchronously.
 
         Args:
             input: User query
@@ -391,7 +391,7 @@ class LangGraphMcpAgent:
         return asyncio.run(self.ainvoke(input))
 
     async def ainvoke(self, input: str) -> str:
-        """Run agent asynchronously.
+        """Run coder asynchronously.
 
         Args:
             input: User query
@@ -416,7 +416,7 @@ class LangGraphMcpAgent:
         return str(last_message.content)
 
     async def astream(self, input: str):
-        """Stream agent execution.
+        """Stream coder execution.
 
         Args:
             input: User query
@@ -434,7 +434,7 @@ class LangGraphMcpAgent:
             yield event
 
     def stream(self, input: str) -> str:
-        """Stream agent execution synchronously.
+        """Stream coder execution synchronously.
 
         Args:
             input: User query
@@ -448,8 +448,8 @@ class LangGraphMcpAgent:
             nonlocal accumulated
             async for event in self.astream(input):
                 # Handle different event types
-                if "agent" in event:
-                    messages = event["agent"].get("messages", [])
+                if "coder" in event:
+                    messages = event["coder"].get("messages", [])
                     for msg in messages:
                         if isinstance(msg, AIMessage) and msg.content:
                             print(msg.content, end="", flush=True)
@@ -468,9 +468,9 @@ class LangGraphMcpAgent:
 """
 LANGGRAPH VS LANGCHAIN AgentExecutor:
 
-LangGraph version (~200 lines of core code):
+LangGraph version (~200 lines of core coder):
 - Explicit state machine with StateGraph
-- Clear node definitions (agent, tools)
+- Clear node definitions (coder, tools)
 - Conditional routing logic
 - Better visibility into execution
 - Easier to add human-in-the-loop
@@ -509,7 +509,7 @@ LANGCHAIN ADVANTAGES:
 
 
 async def example():
-    """Example: Run LangGraph MCP agent."""
+    """Example: Run LangGraph MCP coder."""
     import tempfile
     import os
 
@@ -552,7 +552,7 @@ if __name__ == "__main__":
         print("🚀 LangGraph MCP Example")
         print("=" * 50)
 
-        # Create agent
+        # Create coder
         print("\n1️⃣  Creating LangGraphMcpAgent...")
         agent = LangGraphMcpAgent(
             name="DemoAgent",

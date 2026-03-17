@@ -20,7 +20,7 @@ from cli_agent.ui.prompt import PromptHandler
 load_dotenv()
 
 app = typer.Typer(
-    name="cli-agent",
+    name="cli-coder",
     help="Interactive AI assistant with multi-turn streaming and tool calling",
     add_completion=False,
 )
@@ -50,7 +50,7 @@ class CLIAgent:
         self.max_autonomous_turns = 10
 
     async def initialize(self) -> bool:
-        """Initialize the agent. Returns False if setup fails."""
+        """Initialize the coder. Returns False if setup fails."""
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
             self.console.print_error(
@@ -131,7 +131,7 @@ class CLIAgent:
         tool_calls: list[dict],
         turn_count: int,
     ) -> bool:
-        """Determine if the agent should continue autonomously."""
+        """Determine if the coder should continue autonomously."""
         if turn_count >= self.max_autonomous_turns:
             return False
 
@@ -354,7 +354,7 @@ def default_command(
 ) -> None:
     """CLI Agent - Interactive AI assistant with multi-turn streaming and tool calling."""
     if version:
-        typer.echo("cli-agent 0.1.0")
+        typer.echo("cli-coder 0.1.0")
         raise typer.Exit()
 
     # Only run main logic if no subcommand was invoked

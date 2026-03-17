@@ -108,11 +108,11 @@ async def agent_node(state: State):
 
 # 构建图
 builder = StateGraph(State)
-builder.add_node("agent", agent_node)
+builder.add_node("coder", agent_node)
 builder.add_node("tools", ToolNode(tools))
-builder.add_edge("__start__", "agent")
-builder.add_conditional_edges("agent", route_agent_output)
-builder.add_edge("tools", "agent")
+builder.add_edge("__start__", "coder")
+builder.add_conditional_edges("coder", route_agent_output)
+builder.add_edge("tools", "coder")
 
 graph = builder.compile()
 ```
@@ -236,7 +236,7 @@ graph = builder.compile(checkpointer=MemorySaver())
 
 # 添加条件分支 (可视化路由)
 builder.add_conditional_edges(
-    "agent",
+    "coder",
     lambda state: "tools" if should_call_tools(state) else "__end__"
 )
 ```

@@ -70,10 +70,10 @@ This monorepo uses [uv workspaces](https://docs.astral.sh/uv/concepts/workspaces
 ### Code Quality
 
 ```bash
-# Lint all code
+# Lint all coder
 uv run ruff check .
 
-# Format code
+# Format coder
 uv run ruff format .
 
 # Type checking

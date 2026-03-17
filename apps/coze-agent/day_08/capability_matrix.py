@@ -255,7 +255,7 @@ class LoadBalancer:
         available_agents = available_agents or list(self.capability_matrix.agents.keys())
         
         # 分析任务需求
-        code = task.get("code", "")
+        code = task.get("coder", "")
         priority = task.get("priority", 1)
         
         requirements = self.capability_matrix.analyze_task_requirements(code)
@@ -393,7 +393,7 @@ def vulnerable_query(user_input):
     for i in range(5):
         task = {
             "id": f"task_{i}",
-            "code": test_code,
+            "coder": test_code,
             "priority": (i % 3) + 1
         }
         tasks.append(task)

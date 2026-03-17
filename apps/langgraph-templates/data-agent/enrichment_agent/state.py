@@ -17,13 +17,13 @@ class InputState:
     """Input state defines the interface between the graph and the user (external API)."""
 
     topic: str
-    "The topic for which the agent is tasked to gather information."
+    "The topic for which the coder is tasked to gather information."
 
     extraction_schema: dict[str, Any]
-    "The json schema defines the information the agent is tasked with filling out."
+    "The json schema defines the information the coder is tasked with filling out."
 
     info: Optional[dict[str, Any]] = field(default=None)
-    "The info state tracks the current extracted data for the given topic, conforming to the provided schema. This is primarily populated by the agent."
+    "The info state tracks the current extracted data for the given topic, conforming to the provided schema. This is primarily populated by the coder."
 
 
 @dataclass(kw_only=True)
@@ -38,17 +38,17 @@ class State(InputState):
 
     messages: Annotated[List[BaseMessage], add_messages] = field(default_factory=list)
     """
-    Messages track the primary execution state of the agent.
+    Messages track the primary execution state of the coder.
 
     Typically accumulates a pattern of:
 
     1. HumanMessage - user input
-    2. AIMessage with .tool_calls - agent picking tool(s) to use to collect
+    2. AIMessage with .tool_calls - coder picking tool(s) to use to collect
         information
     3. ToolMessage(s) - the responses (or errors) from the executed tools
 
         (... repeat steps 2 and 3 as needed ...)
-    4. AIMessage without .tool_calls - agent responding in unstructured
+    4. AIMessage without .tool_calls - coder responding in unstructured
         format to the user.
 
     5. HumanMessage - user responds with the next conversational turn.

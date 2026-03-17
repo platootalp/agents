@@ -570,14 +570,14 @@ llm = ChatOpenAI(model="gpt-4")
 
 def analyzer_agent(state):
     """代码分析Agent"""
-    prompt = f"分析以下代码的结构和逻辑：\n{state['code']}"
+    prompt = f"分析以下代码的结构和逻辑：\n{state['coder']}"
     response = llm.invoke(prompt)
     return {"analysis": response.content}
 
 
 def security_agent(state):
     """安全检查Agent"""
-    prompt = f"检查以下代码的安全问题：\n{state['code']}"
+    prompt = f"检查以下代码的安全问题：\n{state['coder']}"
     response = llm.invoke(prompt)
     return {"security": response.content}
 
@@ -617,7 +617,7 @@ def process_user_input(user_input: str):
     conn.execute(query)
 """
 
-result = app.invoke({"code": sample_code})
+result = app.invoke({"coder": sample_code})
 print(result["final_report"])
 ```
 
@@ -843,7 +843,7 @@ class JSONFormatter(logging.Formatter):
         return json.dumps(log_data)
 
 
-logger = logging.getLogger("agent")
+logger = logging.getLogger("coder")
 logger.setLevel(logging.INFO)
 handler = logging.StreamHandler()
 handler.setFormatter(JSONFormatter())
@@ -922,7 +922,7 @@ def setup_logger(name: str):
 
 
 # 使用
-logger = setup_logger("agent")
+logger = setup_logger("coder")
 logger.info("Agent started")
 logger.info("User input: hello")
 ```

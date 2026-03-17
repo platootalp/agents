@@ -533,7 +533,7 @@ import logging
 from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("agent")
+logger = logging.getLogger("coder")
 
 def log_interaction(user_input: str, agent_response: str, metadata: dict):
     logger.info({

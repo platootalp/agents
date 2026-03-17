@@ -14,7 +14,7 @@
 
 ```bash
 # 进入项目目录
-cd apps/cli-agent-demo
+cd apps/cli-coder-demo
 
 # 安装依赖
 uv sync
@@ -38,7 +38,7 @@ cp .env.example .env
 uv run python -m cli_agent.main
 
 # 方式2: 使用入口命令 (安装后)
-cli-agent
+cli-coder
 ```
 
 ### 加载历史会话
@@ -51,10 +51,10 @@ uv run python -m cli_agent.main --session 20240315_143022
 
 ```bash
 # 启动全屏 TUI 界面
-cli-agent tui
+cli-coder tui
 
 # 或加载特定会话
-cli-agent tui --session 20240315_143022
+cli-coder tui --session 20240315_143022
 ```
 
 TUI 界面特性:

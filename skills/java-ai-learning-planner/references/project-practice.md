@@ -577,7 +577,7 @@ from agent import PersonalAssistant
 st.title("🤖 AI个人助理")
 
 # 初始化Agent
-if "agent" not in st.session_state:
+if "coder" not in st.session_state:
     st.session_state.agent = PersonalAssistant()
 
 # 对话历史
@@ -844,17 +844,17 @@ class CodeReviewWorkflow:
 
     def _analyze_node(self, state: ReviewState):
         """分析节点"""
-        result = self.analyzer.run(state["code"])
+        result = self.analyzer.run(state["coder"])
         return {"analysis": result}
 
     def _security_node(self, state: ReviewState):
         """安全检查节点"""
-        result = self.security.run(state["code"])
+        result = self.security.run(state["coder"])
         return {"security": result}
 
     def _style_node(self, state: ReviewState):
         """风格检查节点"""
-        result = self.style.run(state["code"])
+        result = self.style.run(state["coder"])
         return {"style": result}
 
     def _report_node(self, state: ReviewState):
@@ -876,7 +876,7 @@ class CodeReviewWorkflow:
 
     def execute(self, code: str) -> str:
         """执行审查"""
-        initial_state = {"code": code}
+        initial_state = {"coder": code}
         final_state = self.workflow.invoke(initial_state)
         return final_state["final_report"]
 ```
