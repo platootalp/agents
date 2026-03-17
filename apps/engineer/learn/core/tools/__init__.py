@@ -61,9 +61,6 @@ from .builtin.web import (
     web_fetch,
 )
 
-# 向后兼容：保留旧的Tool dataclass
-from ..tool import Tool as LegacyTool
-
 __all__ = [
     # 基础
     "BaseTool",
@@ -104,6 +101,4 @@ __all__ = [
     "WebSearchResult",
     "web_search",
     "web_fetch",
-    # 向后兼容
-    "LegacyTool",
 ]
