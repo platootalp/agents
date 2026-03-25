@@ -5,6 +5,10 @@
 import sys
 from pathlib import Path
 
+# 添加项目根目录到路径
+project_root = Path(__file__).parent.parent.parent.parent.parent
+sys.path.insert(0, str(project_root))
+
 
 def test_imports():
     """测试所有导入是否成功"""
@@ -18,11 +22,11 @@ def test_imports():
     print("\n1. Testing new tool system imports...")
     try:
         try:
-            from apps.engineer.learn.coder.core.tools.base import BaseTool, Tool, ToolResult, tool
-            from apps.engineer.learn.coder.core.tools.manager import ToolManager, ToolExecutor
+            from apps.engineer.coder.core.tools.base import BaseTool, Tool, ToolResult, tool
+            from apps.engineer.coder.core.tools.manager import ToolManager, ToolExecutor
         except ImportError:
-            from learn.coder.core.tools.base import BaseTool, Tool, ToolResult, tool
-            from learn.coder.core.tools.manager import ToolManager, ToolExecutor
+            from apps.engineer.coder.core.tools.base import BaseTool, Tool, ToolResult, tool
+            from apps.engineer.coder.core.tools.manager import ToolManager, ToolExecutor
         print("   ✓ Tool system imports successful")
     except Exception as e:
         errors.append(f"Tool system: {e}")
@@ -32,9 +36,9 @@ def test_imports():
     print("\n2. Testing ToolUseAgent...")
     try:
         try:
-            from apps.engineer.learn.coder.agents.tool_use_agent import ToolUseAgent
+            from apps.engineer.coder.agents.tool_use_agent import ToolUseAgent
         except ImportError:
-            from learn.coder.agents.tool_use_agent import ToolUseAgent
+            from apps.engineer.coder.agents.tool_use_agent import ToolUseAgent
         print("   ✓ ToolUseAgent import successful")
         print(f"   - Has tool_manager: {hasattr(ToolUseAgent, '__init__')}")
     except Exception as e:
@@ -45,9 +49,9 @@ def test_imports():
     print("\n3. Testing McpAgent...")
     try:
         try:
-            from apps.engineer.learn.coder.agents.mcp_agent import McpAgent, StreamChunk
+            from apps.engineer.coder.agents.mcp_agent import McpAgent, StreamChunk
         except ImportError:
-            from learn.coder.agents.mcp_agent import McpAgent, StreamChunk
+            from apps.engineer.coder.agents.mcp_agent import McpAgent, StreamChunk
         print("   ✓ McpAgent import successful")
     except Exception as e:
         errors.append(f"McpAgent: {e}")
@@ -57,14 +61,14 @@ def test_imports():
     print("\n4. Testing SkillsUseAgent...")
     try:
         try:
-            from apps.engineer.learn.coder.agents.skills_agent import (
+            from apps.engineer.coder.agents.skills_agent import (
                 SkillsUseAgent,
                 Skills,
                 SkillsRepository,
                 SkillsToolSet,
             )
         except ImportError:
-            from learn.coder.agents.skills_agent import (
+            from apps.engineer.coder.agents.skills_agent import (
                 SkillsUseAgent,
                 Skills,
                 SkillsRepository,
@@ -79,31 +83,31 @@ def test_imports():
     print("\n5. Testing SubAgent...")
     try:
         try:
-            from apps.engineer.learn.coder.agents.subagent_agent import (
+            from apps.engineer.coder.agents.subagent_agent import (
                 SubAgent,
                 Task,
                 TaskResult,
                 TaskStatus,
             )
         except ImportError:
-            from learn.coder.agents.subagent_agent import SubAgent, Task, TaskResult, TaskStatus
+            from apps.engineer.coder.agents.subagent_agent import SubAgent, Task, TaskResult, TaskStatus
         print("   ✓ SubAgent import successful")
     except Exception as e:
         errors.append(f"SubAgent: {e}")
-        print(f"   ✗ SubAgent import failed: {e}")
+        print(f"   ✗ SubAgent import import failed: {e}")
 
     # 6. 测试 TaskAgent
     print("\n6. Testing TaskAgent...")
     try:
         try:
-            from apps.engineer.learn.coder.agents.task_agent import (
+            from apps.engineer.coder.agents.task_agent import (
                 TaskAgent,
                 TaskGraph,
                 TaskStatus,
                 TaskPriority,
             )
         except ImportError:
-            from learn.coder.agents.task_agent import TaskAgent, TaskGraph, TaskStatus, TaskPriority
+            from apps.engineer.coder.agents.task_agent import TaskAgent, TaskGraph, TaskStatus, TaskPriority
         print("   ✓ TaskAgent import successful")
     except Exception as e:
         errors.append(f"TaskAgent: {e}")
@@ -113,7 +117,7 @@ def test_imports():
     print("\n7. Testing main agents module...")
     try:
         try:
-            from apps.engineer.learn.coder.agents import (
+            from apps.engineer.coder.agents import (
                 ToolUseAgent,
                 McpAgent,
                 SkillsUseAgent,
@@ -121,7 +125,7 @@ def test_imports():
                 TaskAgent,
             )
         except ImportError:
-            from learn.coder.agents import (
+            from apps.engineer.coder.agents import (
                 ToolUseAgent,
                 McpAgent,
                 SkillsUseAgent,
@@ -142,7 +146,7 @@ def test_imports():
         return False
     else:
         print("✅ All imports successful!")
-        print("\nAll agents are now using the new tool system from coder.core.tools")
+        print("\nAll agents are now using the new tool system from apps.engineer.coder.core.tools")
         return True
 
 

@@ -11,29 +11,29 @@ Agent 模块 - 使用新工具系统的各种 Agent 实现
 
 # 新工具系统导入
 try:
-    from apps.engineer.learn.coder.core.tools.base import BaseTool, Tool, ToolResult, tool
-    from apps.engineer.learn.coder.core.tools.manager import ToolManager, ToolExecutor
+    from apps.engineer.coder.core.tools.base import BaseTool, Tool, ToolResult, tool
+    from apps.engineer.coder.core.tools.manager import ToolManager, ToolExecutor
 except ImportError:
-    from learn.coder.core.tools.base import BaseTool, Tool, ToolResult, tool
-    from learn.coder.core.tools.manager import ToolManager, ToolExecutor
+    from apps.engineer.coder.core.tools.base import BaseTool, Tool, ToolResult, tool
+    from apps.engineer.coder.core.tools.manager import ToolManager, ToolExecutor
 
 # Agent 导入
 try:
-    from apps.engineer.learn.coder.agents.tool_use_agent import ToolUseAgent
-    from apps.engineer.learn.coder.agents.mcp_agent import McpAgent, StreamChunk
-    from apps.engineer.learn.coder.agents.skills_agent import (
+    from apps.engineer.coder.agents.tool_use_agent import ToolUseAgent
+    from apps.engineer.coder.agents.mcp_agent import McpAgent, StreamChunk
+    from apps.engineer.coder.agents.skills_agent import (
         SkillsUseAgent,
         Skills,
         SkillsRepository,
         SkillsToolSet,
     )
-    from apps.engineer.learn.coder.agents.subagent_agent import (
+    from apps.engineer.coder.agents.subagent_agent import (
         SubAgent,
         Task,
         TaskResult,
         TaskStatus,
     )
-    from apps.engineer.learn.coder.agents.task_agent import (
+    from apps.engineer.coder.agents.task_agent import (
         TaskAgent,
         Task as TaskAgentTask,
         TaskGraph,
@@ -41,21 +41,21 @@ try:
         TaskPriority,
     )
 except ImportError:
-    from learn.coder.agents.tool_use_agent import ToolUseAgent
-    from learn.coder.agents.mcp_agent import McpAgent, StreamChunk
-    from learn.coder.agents.skills_agent import (
+    from apps.engineer.coder.agents.tool_use_agent import ToolUseAgent
+    from apps.engineer.coder.agents.mcp_agent import McpAgent, StreamChunk
+    from apps.engineer.coder.agents.skills_agent import (
         SkillsUseAgent,
         Skills,
         SkillsRepository,
         SkillsToolSet,
     )
-    from learn.coder.agents.subagent_agent import (
+    from apps.engineer.coder.agents.subagent_agent import (
         SubAgent,
         Task,
         TaskResult,
         TaskStatus,
     )
-    from learn.coder.agents.task_agent import (
+    from apps.engineer.coder.agents.task_agent import (
         TaskAgent,
         Task as TaskAgentTask,
         TaskGraph,

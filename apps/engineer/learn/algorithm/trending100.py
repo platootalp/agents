@@ -125,3 +125,36 @@ class Trending100:
 
         # 翻转链表
         p = self.reverseList(head)
+
+    # 189. 轮转数组
+    def rotate(self, nums: List[int], k: int) -> None:
+        k %= len(nums)
+        if k == 0:
+            return
+
+        nums.reverse()
+        nums[:k] = reversed(nums[:k])
+        nums[k:] = reversed(nums[k:])
+
+    # 238. 除了自身以外数组的乘积
+    def productExceptSelf(self, nums: List[int]) -> List[int]:
+        le = len(nums)
+        res = [1] * le
+
+        # 前缀乘积
+        for i in range(1, len(nums)):
+            res[i] = res[i - 1] * nums[i - 1]
+
+        # 后缀乘积
+        suf = 1
+        for i in range(len(nums) - 2, -1, -1):
+            suf *= nums[i + 1]
+            res[i] *= suf
+
+        return res
+
+    # 73. 矩阵置零
+    def setZeroes(self, matrix: List[List[int]]) -> None:
+        """
+        Do not return anything, modify matrix in-place instead.
+        """

@@ -19,25 +19,17 @@ from typing import Any, Dict, List, Optional, Union
 
 # Session 系统导入
 try:
-    from apps.engineer.learn.coder.core.session import (
-        SessionManager,
-        FileSystemSessionStore,
-        Session,
-    )
-    from apps.engineer.learn.coder.core.tools.base import BaseTool
-    from apps.engineer.learn.coder.agents import ToolUseAgent
-    from apps.engineer.learn.coder.core.model import Model
-    from apps.engineer.learn.coder.core.utils import MessageBuilder
+    from apps.engineer.coder.core.session import Session, SessionManager
+    from apps.engineer.coder.core.tools.base import BaseTool
+    from apps.engineer.coder.agents.tool_use_agent import ToolUseAgent
+    from apps.engineer.coder.core.model import Model
+    from apps.engineer.coder.core.utils import MessageBuilder
 except ImportError:
-    from learn.coder.core.session import (
-        SessionManager,
-        FileSystemSessionStore,
-        Session,
-    )
-    from learn.coder.core.tools.base import BaseTool
-    from learn.coder.agents import ToolUseAgent
-    from learn.coder.core.model import Model
-    from learn.coder.core.utils import MessageBuilder
+    from apps.engineer.coder.core.session import Session, SessionManager
+    from apps.engineer.coder.core.tools.base import BaseTool
+    from apps.engineer.coder.agents.tool_use_agent import ToolUseAgent
+    from apps.engineer.coder.core.model import Model
+    from apps.engineer.coder.core.utils import MessageBuilder
 
 
 class SessionAgent(ToolUseAgent):
@@ -66,14 +58,14 @@ class SessionAgent(ToolUseAgent):
     """
 
     def __init__(
-            self,
-            name: str,
-            description: str = "",
-            model: Optional[Model] = None,
-            tools: Optional[List[Union[BaseTool, Any]]] = None,
-            max_steps: int = 10,
-            max_window_messages: int = 20,
-            session_manager: Optional[SessionManager] = None,
+        self,
+        name: str,
+        description: str = "",
+        model: Optional[Model] = None,
+        tools: Optional[List[Union[BaseTool, Any]]] = None,
+        max_steps: int = 10,
+        max_window_messages: int = 20,
+        session_manager: Optional[SessionManager] = None,
     ):
         """初始化 SessionAgent
 
@@ -98,50 +90,62 @@ class SessionAgent(ToolUseAgent):
 
         for msg in history:
             if msg.role == "tool":
-                messages.append({
-                    "role": "tool",
-                    "content": msg.content,
-                    "tool_call_id": msg.tool_call_id or "",
-                })
+                messages.append(
+                    {
+                        "role": "tool",
+                        "content": msg.content,
+                        "tool_call_id": msg.tool_call_id or "",
+                    }
+                )
             elif msg.tool_calls:
-                messages.append({
-                    "role": "assistant",
-                    "content": msg.content or "",
-                    "tool_calls": msg.tool_calls,
-                })
+                messages.append(
+                    {
+                        "role": "assistant",
+                        "content": msg.content or "",
+                        "tool_calls": msg.tool_calls,
+                    }
+                )
             else:
-                messages.append({
-                    "role": msg.role,
-                    "content": msg.content,
-                })
+                messages.append(
+                    {
+                        "role": msg.role,
+                        "content": msg.content,
+                    }
+                )
 
         return messages
 
     def _save_message_to_session(
-            self,
-            session_id: str,
-            role: str,
-            content: str,
-            tool_calls: Optional[List[Dict]] = None,
-            tool_call_id: Optional[str] = None,
+        self,
+        session_id: str,
+        role: str,
+        content: str,
+        tool_calls: Optional[List[Dict]] = None,
+        tool_call_id: Optional[str] = None,
     ) -> None:
         """保存消息到 session"""
+        try:
+            from apps.engineer.coder.core.message import Message
+        except ImportError:
+            from apps.engineer.coder.core.message import Message
+
         session = self.session_manager.get_session(session_id)
         if session:
-            session.add_message(
+            message = Message(
                 role=role,
                 content=content,
                 tool_calls=tool_calls,
                 tool_call_id=tool_call_id,
             )
+            session.add_message(message)
             self.session_manager.save_session(session)
 
     def run(
-            self,
-            session_id: str,
-            input: str,
-            workspace: Optional[str] = None,
-            user_id: Optional[str] = None,
+        self,
+        session_id: str,
+        input: str,
+        workspace: Optional[str] = None,
+        user_id: Optional[str] = None,
     ) -> str:
         """执行对话并自动保存到 session
 
@@ -163,7 +167,7 @@ class SessionAgent(ToolUseAgent):
         session = self.session_manager.get_or_create_session(
             session_id=session_id,
             workspace=workspace or "default",
-            user_id=user_id,
+            user_id=user_id or "",
         )
 
         # 加载历史消息
@@ -182,8 +186,8 @@ class SessionAgent(ToolUseAgent):
             # 在历史消息前插入系统提示（如果没有的话）
             if not history or history[0].get("role") != "system":
                 self.message_history = [
-                                           MessageBuilder.build_system_message(system_prompt)
-                                       ] + history
+                    MessageBuilder.build_system_message(system_prompt)
+                ] + history
             else:
                 self.message_history = history
             self.message_history.append(MessageBuilder.build_user_message(input))
@@ -239,11 +243,11 @@ class SessionAgent(ToolUseAgent):
         return "Reached maximum steps without a final answer."
 
     def stream(
-            self,
-            session_id: str,
-            input: str,
-            workspace: Optional[str] = None,
-            user_id: Optional[str] = None,
+        self,
+        session_id: str,
+        input: str,
+        workspace: Optional[str] = None,
+        user_id: Optional[str] = None,
     ) -> str:
         """流式执行对话并自动保存到 session"""
         if not self.model:
@@ -255,7 +259,7 @@ class SessionAgent(ToolUseAgent):
         session = self.session_manager.get_or_create_session(
             session_id=session_id,
             workspace=workspace or "default",
-            user_id=user_id,
+            user_id=user_id or "",
         )
 
         # 加载历史
@@ -275,8 +279,8 @@ class SessionAgent(ToolUseAgent):
             print(f"\n📚 Loaded {len(history)} messages from history\n")
             if not history or history[0].get("role") != "system":
                 self.message_history = [
-                                           MessageBuilder.build_system_message(system_prompt)
-                                       ] + history
+                    MessageBuilder.build_system_message(system_prompt)
+                ] + history
             else:
                 self.message_history = history
             self.message_history.append(MessageBuilder.build_user_message(input))
@@ -418,7 +422,7 @@ class SessionAgent(ToolUseAgent):
 
 if __name__ == "__main__":
     load_dotenv()
-    agent = SessionAgent(name="SessionAgent",model=Model())
+    agent = SessionAgent(name="SessionAgent", model=Model())
     result = agent.run("test", "什么是deepagent")
     print(result)
     result2 = agent.run("test", "继续刚才的话题，我们讲到哪里了？")

@@ -5,7 +5,7 @@ ToolUseAgent - 基础工具使用Agent
 =========
 
 层级结构:
-    BaseAgent (learn.coder.core.agent)
+    BaseAgent (learn.core.agent)
         ↓ 继承
     ToolUseAgent (当前文件)
         ↓ 继承
@@ -33,7 +33,7 @@ ToolUseAgent - 基础工具使用Agent
        - 支持同步(_run)和异步(_arun)执行
        - 提供工具回调机制
 
-    4. MessageBuilder (来自 learn.coder.core.utils)
+    4. MessageBuilder (来自 learn.core.utils)
        - 构建标准消息格式 (system/user/assistant/tool)
        - 处理工具调用和响应的转换
 
@@ -70,21 +70,21 @@ from typing import Any, Dict, List, Optional, Union
 
 # 新的工具系统导入
 try:
-    from apps.engineer.learn.coder.core.tools.base import BaseTool, Tool, ToolResult
-    from apps.engineer.learn.coder.core.tools.manager import ToolManager, ToolExecutor
+    from apps.engineer.coder.core.tools.base import BaseTool, Tool, ToolResult
+    from apps.engineer.coder.core.tools.manager import ToolManager, ToolExecutor
 except ImportError:
-    from learn.coder.core.tools.base import BaseTool, Tool, ToolResult
-    from learn.coder.core.tools.manager import ToolManager, ToolExecutor
+    from apps.engineer.coder.core.tools.base import BaseTool, Tool, ToolResult
+    from apps.engineer.coder.core.tools.manager import ToolManager, ToolExecutor
 
 # Agent基础导入
 try:
-    from apps.engineer.learn.coder.core.agent import BaseAgent
-    from apps.engineer.learn.coder.core.model import Model
-    from apps.engineer.learn.coder.core.utils import MessageBuilder
+    from apps.engineer.coder.core.agent import BaseAgent
+    from apps.engineer.coder.core.model import Model
+    from apps.engineer.coder.core.utils import MessageBuilder
 except ImportError:
-    from learn.coder.core.agent import BaseAgent
-    from learn.coder.core.model import Model
-    from learn.coder.core.utils import MessageBuilder
+    from apps.engineer.coder.core.agent import BaseAgent
+    from apps.engineer.coder.core.model import Model
+    from apps.engineer.coder.core.utils import MessageBuilder
 
 
 class ToolUseAgent(BaseAgent):
@@ -497,7 +497,7 @@ from dotenv import load_dotenv
 
 
 # 使用新的 @tool 装饰器创建工具
-from apps.engineer.learn.coder.core.tools.base import tool
+from apps.engineer.coder.core.tools.base import tool
 
 
 @tool()
@@ -527,8 +527,24 @@ def calculator_tool(expression: str) -> str:
 if __name__ == "__main__":
     load_dotenv()
 
-    # 使用新的工具类
-    from apps.engineer.learn.coder.core.tools.builtin import create_all_builtin_tools
+    # 创建内置工具
+    builtin_tools = [
+        ReadFileTool(),
+        WriteFileTool(),
+        EditFileTool(),
+        GlobTool(),
+        GrepTool(),
+        ShellTool(),
+        WebSearchTool(),
+        WebFetchTool(),
+    ]
+
+    agent = ToolUseAgent(
+        name="ExampleAgent",
+        model=Model(),
+        tools=builtin_tools,  # 使用新的工具系统
+        max_steps=5,
+    )
 
     # 创建内置工具
     builtin_tools = create_all_builtin_tools()

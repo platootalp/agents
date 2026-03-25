@@ -2,7 +2,7 @@
 创建所有内置工具的便捷函数
 
 Usage:
-    from apps.engineer.learn.coder.core.tools.builtin import create_all_builtin_tools
+    from apps.engineer.coder.core.tools.builtin import create_all_builtin_tools
 
     tools = create_all_builtin_tools()
     manager = ToolManager()

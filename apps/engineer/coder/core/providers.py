@@ -2,21 +2,13 @@ from abc import ABC, abstractmethod
 from typing import Any, AsyncIterator, Dict, Iterator, List, Optional, Sequence
 from pydantic import BaseModel, Field
 
+from .config import ProviderConfig
 from .message import Message
-
-
-class ProviderConfig(BaseModel):
-    api_key: Optional[str] = None
-    base_url: Optional[str] = None
-    model: str = "gpt-4o"
-    temperature: float = 0.7
-    max_tokens: Optional[int] = None
-    timeout: int = 60
 
 
 class GenerationResult(BaseModel):
     message: Message
-    usage: Dict[str, int] = Field(default_factory=dict)
+    usage: Dict[str, Any] = Field(default_factory=dict)
     finish_reason: Optional[str] = None
     raw_response: Optional[Dict[str, Any]] = None
 
