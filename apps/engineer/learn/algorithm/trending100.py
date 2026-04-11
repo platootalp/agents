@@ -1,4 +1,4 @@
-from collections import Counter
+from collections import Counter, deque
 from typing import List, Optional
 
 from apps.engineer.framework.data_structure.linked_list import ListNode
@@ -125,3 +125,43 @@ class Trending100:
 
         # 翻转链表
         p = self.reverseList(head)
+
+    def levelOrder(self, root: Optional[TreeNode]) -> List[List[int]]:
+        if root is None:
+            return []
+        ans = []
+        q = deque([root])
+        while q:
+            vals = []
+            for _ in range(len(q)):
+                node = q.popleft()
+                vals.append(node.val)
+                if node.left:  q.append(node.left)
+                if node.right: q.append(node.right)
+            ans.append(vals)
+        return ans
+
+
+
+if __name__ == '__main__':
+    matrix = [
+        [1, 0, 3],
+        [4, 5, 6],
+        [7, 8, 0]
+    ]
+
+    # 1. 检查行
+    # 第 1 行有 0 -> True
+    # 第 2 行没 0 -> False
+    # 第 3 行有 0 -> True
+    row_has_zero = [0 in row for row in matrix]
+    # 结果：[True, False, True]
+    print(row_has_zero)
+    # 2. 检查列
+    # zip(*matrix) 会把列提取出来：
+    # 第 1 列：(1, 4, 7) -> 无 0 -> False
+    # 第 2 列：(0, 5, 8) -> 有 0 -> True
+    # 第 3 列：(3, 6, 0) -> 有 0 -> True
+    col_has_zero = [0 in col for col in zip(*matrix)]
+    # 结果：[False, True, True]
+    print(col_has_zero)
