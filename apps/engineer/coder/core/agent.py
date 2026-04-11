@@ -2,9 +2,9 @@ from abc import ABC, abstractmethod
 from typing import Callable, List, Optional, Dict, Any
 
 try:
-    from apps.engineer.learn.coder.core.model import Model
+    from apps.engineer.coder.core.model import Model
 except ImportError:
-    from learn.coder.core.model import Model
+    from coder.core.model import Model
 
 
 class BaseAgent(ABC):

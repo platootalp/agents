@@ -26,7 +26,7 @@ class MemoryEntry:
     """
 
     content: str
-entry_type: str = "generic"  # generic, observation, thought, action, entity
+    entry_type: str = "generic"  # generic, observation, thought, action, entity
     metadata: Dict[str, Any] = field(default_factory=dict)
     timestamp: datetime = field(default_factory=datetime.now)
     entry_id: str = field(
@@ -103,7 +103,7 @@ class BufferMemory(BaseMemory):
 
         # 保持内存大小限制
         if len(self._entries) > self.max_size:
-            self._entries = self._entries[-self.max_size :]
+            self._entries = self._entries[-self.max_size:]
 
         return entry
 
@@ -190,9 +190,9 @@ class VectorMemory(BaseMemory):
     """
 
     def __init__(
-        self,
-        name: str = "vector_memory",
-        embedding_func: Optional[Callable[[str], List[float]]] = None,
+            self,
+            name: str = "vector_memory",
+            embedding_func: Optional[Callable[[str], List[float]]] = None,
     ):
         super().__init__(name)
         self.embedding_func = embedding_func
@@ -339,70 +339,3 @@ class EntityMemory(BaseMemory):
     def list_entities(self) -> List[str]:
         """列出所有实体名称"""
         return list(self._entities.keys())
-
-
-class CompositeMemory(BaseMemory):
-    """
-    组合内存
-
-    整合多种内存类型，提供统一的访问接口
-    """
-
-    def __init__(self):
-        super().__init__("composite_memory")
-        self.short_term = BufferMemory("short_term")
-        self.entities = EntityMemory("entities")
-        self._memories: List[BaseMemory] = []
-
-    def add_memory(self, memory: BaseMemory) -> None:
-        """添加额外的内存实现"""
-        self._memories.append(memory)
-
-    def add(self, content: str, **metadata) -> MemoryEntry:
-        """添加到短期内存"""
-        return self.short_term.add(content, **metadata)
-
-    def get(self, query: str, limit: int = 5) -> List[MemoryEntry]:
-        """
-        从所有内存中检索
-
-        合并并去重结果
-        """
-        all_results = []
-        seen_ids = set()
-
-        # 从所有内存源检索
-        sources = [self.short_term, self.entities] + self._memories
-        for source in sources:
-            try:
-                results = source.get(query, limit)
-                for entry in results:
-                    if entry.entry_id not in seen_ids:
-                        all_results.append(entry)
-                        seen_ids.add(entry.entry_id)
-            except Exception:
-                continue
-
-        # 按重要性排序
-        all_results.sort(key=lambda e: e.importance, reverse=True)
-        return all_results[:limit]
-
-    def get_recent(self, limit: int = 10) -> List[MemoryEntry]:
-        """获取最近的记忆"""
-        return self.short_term.get_recent(limit)
-
-    def clear(self) -> None:
-        """清空所有内存"""
-        self.short_term.clear()
-        self.entities.clear()
-        for memory in self._memories:
-            memory.clear()
-
-    def save_entities(self, entities: Dict[str, str]) -> None:
-        """批量保存实体"""
-        for name, description in entities.items():
-            self.entities.add(description, entity_name=name)
-
-    def recall_entities(self, query: str) -> List[MemoryEntry]:
-        """专门检索实体"""
-        return self.entities.get(query)

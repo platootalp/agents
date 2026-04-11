@@ -13,6 +13,12 @@ class Session(BaseModel):
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
 
+    # Additional fields for session management
+    workspace: str = Field(default="default")
+    user_id: str = Field(default="")
+    title: str = Field(default="")
+    tags: List[str] = Field(default_factory=list)
+
     def add_message(self, message: Message) -> None:
         self.messages.append(message)
         self.updated_at = datetime.now()
@@ -32,6 +38,23 @@ class Session(BaseModel):
     def estimate_tokens(self) -> int:
         total = sum(len(m.content) for m in self.messages)
         return int(total / 4)
+
+    def get_token_estimate(self) -> int:
+        """Alias for estimate_tokens for backward compatibility"""
+        return self.estimate_tokens()
+
+    def get_message_count(self) -> int:
+        """Return the number of messages in the session"""
+        return len(self.messages)
+
+    def get_duration(self) -> float:
+        """Return the session duration in seconds"""
+        return (self.updated_at - self.created_at).total_seconds()
+
+    def update_title(self, title: str) -> None:
+        """Update the session title"""
+        self.title = title
+        self.updated_at = datetime.now()
 
 
 class SessionManager:
@@ -67,3 +90,31 @@ class SessionManager:
 
     def list_sessions(self) -> List[str]:
         return list(self._sessions.keys())
+
+    def get_session(self, session_id: str) -> Optional[Session]:
+        """Alias for get() for backward compatibility"""
+        return self.get(session_id)
+
+    def save_session(self, session: Session) -> None:
+        """Save session to manager (for memory storage, just updates the reference)"""
+        self._sessions[session.session_id] = session
+
+    def get_or_create_session(
+        self,
+        session_id: str,
+        workspace: str = "default",
+        user_id: str = "",
+    ) -> Session:
+        """Get existing session or create new one with workspace and user_id"""
+        session = self.get(session_id)
+        if session:
+            return session
+
+        # Create new session with additional fields
+        session = Session(
+            session_id=session_id,
+            workspace=workspace,
+            user_id=user_id,
+        )
+        self._sessions[session_id] = session
+        return session

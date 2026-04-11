@@ -109,21 +109,21 @@ from pydantic import BaseModel, Field
 
 # 新工具系统导入
 try:
-    from apps.engineer.learn.coder.core.tools.base import BaseTool, Tool, ToolResult, tool
-    from apps.engineer.learn.coder.core.tools.manager import ToolManager
+    from apps.engineer.coder.core.tools.base import BaseTool, Tool, ToolResult, tool
+    from apps.engineer.coder.core.tools.manager import ToolManager, ToolExecutor
 except ImportError:
-    from learn.coder.core.tools.base import BaseTool, Tool, ToolResult, tool
-    from learn.coder.core.tools.manager import ToolManager
+    from apps.engineer.coder.core.tools.base import BaseTool, Tool, ToolResult, tool
+    from apps.engineer.coder.core.tools.manager import ToolManager, ToolExecutor
 
 # Agent基础导入
 try:
-    from apps.engineer.learn.coder.core.model import Model
-    from apps.engineer.learn.coder.agents.tool_use_agent import ToolUseAgent
-    from apps.engineer.learn.coder.core.utils import MessageBuilder
+    from apps.engineer.coder.core.model import Model
+    from apps.engineer.coder.agents.tool_use_agent import ToolUseAgent
+    from apps.engineer.coder.core.utils import MessageBuilder
 except ImportError:
-    from learn.coder.core.model import Model
-    from learn.coder.agents.tool_use_agent import ToolUseAgent
-    from learn.coder.core.utils import MessageBuilder
+    from apps.engineer.coder.core.model import Model
+    from apps.engineer.coder.agents.tool_use_agent import ToolUseAgent
+    from apps.engineer.coder.core.utils import MessageBuilder
 
 
 class TaskStatus(str, Enum):

@@ -275,7 +275,7 @@ class ConversationMixin(ToolExecutorMixin):
         Returns:
             (response_content, has_more_steps): 响应内容和是否还有更多步骤
         """
-        from apps.engineer.learn.agent.core.model import Model
+        from apps.engineer.coder.core.model import Model
 
         if not self.model:
             return "No model configured.", False
